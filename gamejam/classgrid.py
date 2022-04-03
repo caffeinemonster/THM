@@ -7,10 +7,10 @@ class cgrid():
         self.data = []
         self.x = x 
         self.y = y 
-        self.width = 0
-        self.height = 0
-        self.cellwidth = 0
-        self.cellheight = 0
+        #self.width = 0
+        #self.height = 0
+        #self.cellwidth = 0
+        #self.cellheight = 0
         self.width = surf.get_width()
         self.height = surf.get_height()
         self.cellwidth = self.width / x

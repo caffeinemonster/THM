@@ -1,6 +1,7 @@
 from pygame.locals import * # import pygame constants 
 import pygame, math, sys, time # import required librarys 
-from classgrid import cgrid # import grid class 
+from classgrid import cgrid # import grid class
+from classcolour import ccolour # new instance of colour class
 
 class node(object):
     def __init__(self, xy):
@@ -26,7 +27,7 @@ class pathfinder(object):
         self.open = [] # list to store array of open search locations 
         self.closed  = [] # list of closed search locations 
         self.open.append(node(self.pos_start)) # append start pos to open list sets 1st node to search 
-
+       
     def checkkeys(self):
         # function to detect key presses 
         for event in pygame.event.get():
@@ -53,6 +54,7 @@ class pathfinder(object):
         return cellreturn # if not return original cell
         
     def calcpath(self, surf): # calculates A* optimal path / route
+        ocolour = ccolour() 
         # build stats map for grid.
         for y in range(0,self.grid.y):
             for x in range(0,self.grid.x):
@@ -90,7 +92,7 @@ class pathfinder(object):
                     onode.h = self.grid.calculatedistance(o.xy, self.pos_end) # set distance value 
                     onode.f = onode.g + onode.f # set heuristic value (step + distance)
                     onode.previousnode = o # set previous node to trace path 
-                    self.grid.drawcell(surf, onode.xy[0], onode.xy[1], (255,255,0), 3, 2) # highlight search 
+                    self.grid.drawcell(surf, onode.xy[0], onode.xy[1], ocolour.getrgb("YELLOW"), 3, 2) # highlight search 
                     self.open.append(onode) # add node to serach list 
                 self.step += 1 # increase step count by one
                 if o.xy == self.pos_end: # if path found (end goal reached)
@@ -98,13 +100,16 @@ class pathfinder(object):
                     bexit = 1 # exit routine 
                     break # quit for loop 
                 self.closed.append(o) # append current node to closed list 
-                self.open.remove(o) # remove current node from open list 
+                try:
+                    self.open.remove(o) # remove current node from open list 
+                except: pass
                 if len(self.open) == 0: # if all search possibilities have been reached exit routine
                     return node(self.pos_start) # return the startpos if no path found 
                     bexit = 1 # exit routine 
                     break # break for lopp 
 
 def main():
+    ocolour = ccolour()
     pygame.init() # initialise pygam e library 
     # set core variables 
     DISPLAYSURF = pygame.display.set_mode((0, 0), pygame.FULLSCREEN) # setup display surface
@@ -119,27 +124,34 @@ def main():
         opf.grid.drawgrid(DISPLAYSURF) # draw grid 
         opf.grid.drawcell(DISPLAYSURF, opf.pos_start[0], opf.pos_start[1], (0,255,0), 5, 0) # highlight start pos 
         opf.grid.drawcell(DISPLAYSURF, opf.pos_end[0], opf.pos_end[1], (255,0,0), 5, 0) # highlight endpos 
-        opf.checkkeys() # check keyboard keys 
+        opf.checkkeys() # check keyboard keys
+        
         if update > 100: # when update time reaches value reset grid
             update = 0 # reset update timer 
             DISPLAYSURF.fill((0,0,0)) # fill screen black
             opf = pathfinder(DISPLAYSURF) # create new pathfinder class 
             opf.grid.drawgrid(DISPLAYSURF) # draw current grid / map 
             onode = opf.calcpath(DISPLAYSURF) # calculate path see pathfinder class
+            # DEBUG PRINT
             tempcell = onode # make copy of return data incase need to process later 
+            for o in opf.stats:
+                g = 255 - (o.h * 10)
+                if g < 0: g = 0
+                opf.grid.drawcell(DISPLAYSURF, o.xy[0], o.xy[1], (0,g,0), 5, 5) # highlight route
+                opf.grid.drawtext(DISPLAYSURF, o.xy[0], o.xy[1], str(int(o.h)), 12) # draw stats 
+            
+
             while not tempcell == "": # while temp cell is still available 
                 if not tempcell == None: # ensure the object exists 
-                    opf.grid.drawcell(DISPLAYSURF, tempcell.xy[0], tempcell.xy[1], (0,128,0), 5, 5) # highlight route
+                    opf.grid.drawcell(DISPLAYSURF, tempcell.xy[0], tempcell.xy[1], (255,0,0), 5, 5) # highlight route
                     if not tempcell.previousnode == "":
                         # draw nodes and link by line to show path 
-                        pygame.draw.line(DISPLAYSURF, (255,0,0), (tempcell.xy[0]*opf.grid.cellwidth +(opf.grid.cellwidth/2), tempcell.xy[1]*opf.grid.cellheight+(opf.grid.cellheight/2)), (tempcell.previousnode.xy[0]*opf.grid.cellwidth+(opf.grid.cellwidth/2), tempcell.previousnode.xy[1]*opf.grid.cellheight+(opf.grid.cellheight/2)), width=2) # draws path
-                        pygame.draw.circle(DISPLAYSURF, (0,128,128),(tempcell.xy[0]*opf.grid.cellwidth +(opf.grid.cellwidth/2), tempcell.xy[1]*opf.grid.cellheight+(opf.grid.cellheight/2)) , 3) # highlights points with circles 
+                        pygame.draw.line(DISPLAYSURF, (0,255,0), (tempcell.xy[0]*opf.grid.cellwidth +(opf.grid.cellwidth/2), tempcell.xy[1]*opf.grid.cellheight+(opf.grid.cellheight/2)), (tempcell.previousnode.xy[0]*opf.grid.cellwidth+(opf.grid.cellwidth/2), tempcell.previousnode.xy[1]*opf.grid.cellheight+(opf.grid.cellheight/2)), width=2) # draws path
+                        pygame.draw.circle(DISPLAYSURF, (0,0,255),(tempcell.xy[0]*opf.grid.cellwidth +(opf.grid.cellwidth/2), tempcell.xy[1]*opf.grid.cellheight+(opf.grid.cellheight/2)) , 3) # highlights points with circles 
                 else: break # quit
                 tempcell = tempcell.previousnode # set next cell / node
                 if tempcell == "": break # if cell is empty / doesnt exist exit 
-            # DEBUG PRINT
-            #for onode in opf.stats:
-                #opf.grid.drawtext(DISPLAYSURF, onode.xy[0], onode.xy[1], str(int(onode.h)), 12) # draw stats 
+
         pygame.display.flip() # UPDATE DISPLAY BUFFER
         pygame.display.update() # UPDATE DISPLAY BUFFER
         GCLOCK.tick(60) # SET FRAMERATE 
