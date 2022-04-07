@@ -3,13 +3,14 @@ from pygame.locals import *
 from classtext import ctext
 from classtarget import ctarget
 from classsounds import csounds
+from classpathfinder import cpathfinder
+from classlog import clog
 
 
 #from classtargets import ctargets
 
 class clevel(object):
     def __init__(self):
-    
         self.leveldata = ["1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1",
                           "1,0,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1",
                           "1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1",
@@ -31,7 +32,7 @@ class clevel(object):
                           "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
                           "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
                           "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
-                          "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
+                          "0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0",
                           "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
                           "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
                           "0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0",
@@ -41,7 +42,7 @@ class clevel(object):
                           "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
                           "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
                           "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
-                          "0,0,0,0,0,0,1,1,0,4,4,4,4,1,1,0,0",
+                          "0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0",
                           "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"]
         
         self.overlay =  [["0,0,0,0,0,11,11,11,11,0,0,0,0,0,0,0,0",
@@ -124,7 +125,12 @@ class clevel(object):
         self.offset = pygame.Vector2(0,0)
         self.otext = ctext()
         self.generated = 0
-        self.sfx = csounds() 
+        self.sfx = csounds()
+        self.pfinder = cpathfinder(self.level, self.gridsize)
+        self.pfinder.grid.data = self.leveldata
+        self.log = clog()
+        
+        
         
     def generatelevel(self, surf):
         if self.generated == 0:
@@ -191,24 +197,30 @@ class clevel(object):
                     otarget = ctarget((x * self.tilesize[0] + (self.tilesize[0]/2), y * self.tilesize[1]+ (self.tilesize[1]/2)), simage, ihealth, idamgaeable, itartgettype, tempsurf)
                     otarget.pos = pygame.Vector2(otarget.pos[0] - (otarget.image.get_width() / 2), otarget.pos[1] - (otarget.image.get_height() / 2))
                     otarget.target = otarget.pos
-                    otarget.opf.grid.data = self.leveldata
                     
-                    if self.generated:
-                        otarget.opf.configure(self.gridsize[0],self.gridsize[1], self.level)
-                        otarget.opf.grid.configure(self.gridsize[0],self.gridsize[1], self.level)
+                    self.pfinder.pos_start = self.pfinder.grid.getxy(otarget.pos - self.offset)
+                    
+                    self.pfinder.pos_end = self.pfinder.grid.getrandomcell()
+                    while self.pfinder.grid.getgridvalue(self.pfinder.pos_end[0], self.pfinder.pos_end[1]):
+                        self.pfinder.pos_end = self.pfinder.grid.getrandomcell()
+                    #self.pfinder.calcpath()
+                    #otarget.opf.grid.data = self.leveldata
+                    #if self.generated:
+                        #otarget.opf.configure(self.gridsize[0],self.gridsize[1], self.level)
+                        #otarget.opf.grid.configure(self.gridsize[0],self.gridsize[1], self.level)
                     #otarget.target = pygame.Vector2(otarget.pos[0] - (otarget.image.get_width() / 2), otarget.pos[1] - (otarget.image.get_height() / 2))
                     otarget.active = 0
                     self.targets.append(otarget)
                 
     def drawtargets(self, surf):
         for t in self.targets:
-            t.opf.grid.cellwidth = self.tilesize[0]
-            t.opf.grid.cellwidth = self.tilesize[1]
+            #t.opf.grid.cellwidth = self.tilesize[0]
+            #t.opf.grid.cellwidth = self.tilesize[1]
             t.draw(surf, self.offset)
             
     def updatetargets(self, oplayer, surf):
         for targ in self.targets:
-            self.calcpath(oplayer, targ,surf)
+            #self.calcpath(oplayer, targ,surf)
             move = targ.target - targ.pos
             move_length = move.length()
             if move_length < targ.speed:
@@ -218,132 +230,123 @@ class clevel(object):
                 move.normalize_ip()
                 move = move * targ.speed
                 targ.pos += move
-            if targ.followplayer == 1:
-                if targ.targettype == 4:
-                    if targ.health > 0:
-                        self.calcpath(oplayer, targ, surf)
-                        # print(targ.opf.cellpath)
-                        # tempcell = targ.opf.cellpath
-                        # print("path:")
-                        # while not tempcell == "":
-                            # print(tempcell.pos)
-                            # tempcell = tempcell.previouscell
-                            
-                            
-                        # tempcell = targ.opf.cellpath
-                        # olist = []
-                        # while not tempcell == "":
+                
+            #if targ.followplayer == 1:
+                #if targ.targettype == 4:
+                    #if targ.health > 0:
+                        #pass
+                        #self.calcpath(oplayer, targ, surf)
+                        #print(targ.health)
+                        #self.calcpath(targ, oplayer, surf)
+                        
+                        # self.pfinder.pos_start = self.pfinder.grid.getxy(targ.pos)
+                        # self.pfinder.pos_end = self.pfinder.grid.getxy(oplayer.pos)
+                        
+                        # #self.pfinder.grid.drawgrid(self.level)
+                        # n = self.pfinder.calcpath(self.level)
+                        # tempcell=n
+                        # while not tempcell == "": # while temp cell is still available 
+                            # if not tempcell == None: # ensure the object exists 
+                                # self.pfinder.grid.drawcell(self.level, tempcell.xy[0], tempcell.xy[1], (255,0,0), 5, 5) # highlight route
+                                # if not tempcell.previousnode == "":
+                                    # # draw nodes and link by line to show path 
+                                    # pygame.draw.line(self.level, (0,255,0), (tempcell.xy[0]*self.pfinder.grid.cellwidth +(self.pfinder.grid.cellwidth/2), tempcell.xy[1]*self.pfinder.grid.cellheight+(self.pfinder.grid.cellheight/2)), (tempcell.previousnode.xy[0]*self.pfinder.grid.cellwidth+(self.pfinder.grid.cellwidth/2), tempcell.previousnode.xy[1]*self.pfinder.grid.cellheight+(self.pfinder.grid.cellheight/2)), width=2) # draws path
+                                    # pygame.draw.circle(self.level, (0,0,255),(tempcell.xy[0]*self.pfinder.grid.cellwidth +(self.pfinder.grid.cellwidth/2), tempcell.xy[1]*self.pfinder.grid.cellheight+(self.pfinder.grid.cellheight/2)) , 3) # highlights points with circles 
                             # if not tempcell == "":
-                                # olist.append(tempcell)
-                                # tempcell = tempcell.previouscell
-                                # print(tempcell)
-                        # print(olist)
-                        
-                        
-                        # previous = tempcell
-                        
-                        # while not tempcell == None:
-                            # previous = tempcell
-                            # tempcell = tempcell.previouscell
-                            #if tempcell == "":break
+                                # if not tempcell == None:
+                                    # tempcell = tempcell.previousnode
+                                # else: break
+                            # else: break
                             
-                        # if not previous == None:
-                            # print("setting position")
-                            # print(previous.pos)
-                            # targ.target = targ.opf.grid.getxylocation(previous.pos)
-                            
-                        #if self.generated:
-                        #print("TARG" + str(targ.opf.grid.getxy(targ.pos)))
-                        #print("PLAY:" + str(targ.opf.grid.getxy(oplayer.pos - self.offset)))
-                        #targ.target[0] = (oplayer.pos[0] - (oplayer.image.get_width()/2) - self.offset[0]) - targ.image.get_width()
-                        #targ.target[1] = (oplayer.pos[1] - (oplayer.image.get_height()/2) - self.offset[1]) - targ.image.get_height()
-                        #targ.target = oplayer.pos - self.offset - targ.image.get_size()    
+                        # while not n == "":
+                            # if n == None: break
+                            # print("PATH : " + str(n.xy))
+                            # if n.previousnode == "": break 
+                            # if self.pfinder.grid.getxy(targ.pos) == self.pfinder.grid.getxy(n.xy): break
+                            # n = n.previousnode
+                        
+                        # if not n == None:
+                            # targ.target = self.pfinder.grid.getxylocation(n.xy)
+                            # print(n.xy)
+                            # print(self.pfinder.grid.getxylocation(n.xy))
+  
             if targ.targettype == 4:
                 if targ.timer <= 0: # retargeting timer
                     targ.timer = targ.timertotal
-                    if random.randint(0,100) >= 0: # 5% chance of attacking player
-                        # NEED TO ADD CODE TO IMPLEMENT PATH FINDING CLASS 
-                        #targ.target[0] = (oplayer.pos[0] - (oplayer.image.get_width()/2) - self.offset[0]) - (targ.image.get_width()/2)
-                        #targ.target[1] = (oplayer.pos[1] - (oplayer.image.get_height()/2) - self.offset[1]) - (targ.image.get_height()/2)
-                        # tempcell = targ.opf.calcpath(targ.opf.grid.getxy(targ.pos + self.offset), targ.opf.grid.getxy(oplayer.playercenter), self.level)    
-                        # while not tempcell.previouscell == "":
-                            # tempcell = tempcell.previouscell
-                        # # targ.target = targ.opf.grid.getxylocation(tempcell.pos)
-                        # print("TARG" + str(targ.opf.grid.getxy(targ.pos)))
-                        # print("PLAY:" + str(targ.opf.grid.getxy(oplayer.pos - self.offset)))
-                        # tempcell = targ.opf.calcpath(targ.opf.grid.getxy(targ.pos), targ.opf.grid.getxy(oplayer.pos - self.offset), self.level)    
-                        # while not tempcell.previouscell == "":
-                            # tempcell = tempcell.previouscell
-                        # targ.target = targ.opf.grid.getxylocation(tempcell.pos)
-                        #targ.opf.data = self.leveldata
-                        # tempcell = targ.opf.cellpath
-                        # previous = tempcell
-                        # while not targ.opf.grid.getxy(targ.pos) == tempcell.pos:
-                            # previous = tempcell
-                            # tempcell = tempcell.previouscell
-                            # if tempcell == "":
-                                # break
-                        # if not previous == "":
-                            # targ.target = targ.opf.grid.getxylocation(previous.pos)
-                            
-                        self.calcpath(oplayer, targ, surf)
+                    if random.randint(0,100) >= 50: # 5% chance of attacking player
+                        
+                        self.calcpath(targ, oplayer, surf)
                         targ.active = 1
                         targ.followplayer = 1
                         targ.speed = random.randint(1,4)
-                        
                     else:
-                        targ.followplayer = 0
-                        targ.target = pygame.Vector2(random.randint(0,self.levelsize[0]), random.randint(0,self.levelsize[1]))
+                        #targ.followplayer = 0
+                        #targ.target = pygame.Vector2(random.randint(0,self.levelsize[0]), random.randint(0,self.levelsize[1]))
                         targ.speed = random.randint(1,2)
+                else: targ.timer -= 1
             if not targ.active:
                 targ.speed = 0
                 targ.target = targ.pos
-    
-    def calcpath(self, player, target, surf):
-        #if self.leveldata == []:
-        target.opf.data = self.leveldata
-        target.opf.grid.configure(self.gridsize[0], self.gridsize[1], self.level)
-        target.opf.grid.data = self.leveldata
-        target.opf.grid.cellwidth = self.tilesize[0]
-        target.opf.grid.cellheight = self.tilesize[1]
-        #print(target.pos)
-        #print(player.pos)
+                
+    def calcpath(self, targ, oplayer, surf):
         
-        print(target.opf.grid.getxy(target.pos))
-        print(target.opf.grid.getxy(player.pos))
+        if targ == None: return 
+        if oplayer == None: return 
         
-        tempcell = ""
-        previous = ""
+        self.pfinder = cpathfinder(self.level, self.gridsize)
+        self.pfinder.grid.data = self.leveldata
         
-        if (not player.pos == None) and (not target.pos == None):
-            print("claculating path")
-            tempcell = target.opf.calcpath(target.opf.grid.getxy(target.pos), target.opf.grid.getxy(player.pos), surf)
-        #try:
-        olist = []
-        while not tempcell == "":
-            #if target.opf.grid.getxy(target.pos) == tempcell.pos:break 
-            if tempcell == "":break
-            print(target.pos)
-            print("tempcellpos : " + str(tempcell.pos))
-            olist.append(tempcell.pos)
-            previous = tempcell
-            tempcell = tempcell.previouscell
+        self.pfinder.pos_start = self.pfinder.grid.getxy(targ.pos - self.offset)
+        self.pfinder.pos_end = self.pfinder.grid.getxy(oplayer.pos - self.offset)
         
-        print(olist)
+        #self.pfinder = 
+        print("Targ origin " + str(targ.pos - self.offset))
+        print("Player origin " + str(oplayer.pos - self.offset))
+        
+        print("target xy:" + str(self.pfinder.grid.getxy(targ.pos - self.offset)))
+        print("player xy:" + str(self.pfinder.grid.getxy(oplayer.pos - self.offset)))
+        
+        print("pfinder end pos:" + str(self.pfinder.pos_end))
+        print("pfinder start pos:" + str(self.pfinder.pos_start))
+        
+#        
+        
+        #self.pfinder.grid.drawgrid(self.level)
+        n = self.pfinder.calcpath(self.level)
+        print("path calculated")
+        tempcell=n
+        while not tempcell == "": # while temp cell is still available 
+            if not tempcell == None: # ensure the object exists 
+                self.pfinder.grid.drawcell(self.level, tempcell.xy[0], tempcell.xy[1], (255,0,0), 5, 5) # highlight route
+                if not tempcell.previousnode == "":
+                    # draw nodes and link by line to show path 
+                    pygame.draw.line(self.level, (0,255,0), (tempcell.xy[0]*self.pfinder.grid.cellwidth +(self.pfinder.grid.cellwidth/2), tempcell.xy[1]*self.pfinder.grid.cellheight+(self.pfinder.grid.cellheight/2)), (tempcell.previousnode.xy[0]*self.pfinder.grid.cellwidth+(self.pfinder.grid.cellwidth/2), tempcell.previousnode.xy[1]*self.pfinder.grid.cellheight+(self.pfinder.grid.cellheight/2)), width=2) # draws path
+                    pygame.draw.circle(self.level, (0,0,255),(tempcell.xy[0]*self.pfinder.grid.cellwidth +(self.pfinder.grid.cellwidth/2), tempcell.xy[1]*self.pfinder.grid.cellheight+(self.pfinder.grid.cellheight/2)) , 3) # highlights points with circles 
+                    
+            #else: break 
             
-        #if not previous == "":
-        #target.target = target.opf.grid.getxylocation(olist[len(olist)-1])
-        print("next target location")
-        #print(target.opf.grid.getxylocation(pygame.Vector2(olist[len(olist)-1])))
-        #print(olist[len(olist)-1])
-        #print(target.opf.grid.getxylocation(olist[len(olist)-1]))
-        #target.target = target.opf.grid.getxylocation(olist[len(olist)-1])
-        target.target = target.opf.grid.getxylocation(pygame.Vector2(olist[1]))
-        target.active = 1
-#        except:pass
-        
-        #return target.cellpath
+            if not tempcell == "":
+                if not tempcell == None:
+                    tempcell = tempcell.previousnode
+                else: break
+            else: break
             
+        while not n == "":
+            if n == None: break
+            print("PATH : " + str(n.xy))
+            if n.previousnode == "": break 
+            #if self.pfinder.grid.getxy(targ.pos - self.offset) == n.xy: break
+            n = n.previousnode
+        
+        # if not n == None:
+            # targ.target = self.pfinder.grid.getxylocation(n.xy)
+            # print(n.xy)
+            # print(self.pfinder.grid.getxylocation(n.xy))
+
+        #def drawcell(self, surf, x, y, colour, border, curve): # used to draw cells 
+        if not n == None:
+            self.pfinder.grid.drawcell(self.level, n.xy[0], n.xy[1], (128,128,128), 3, 4)
+        
     def collide(self, oplayer, pcollection):
         for x in range (0, int(self.gridsize[0])):
             for y in range (0,  int(self.gridsize[1])):                    

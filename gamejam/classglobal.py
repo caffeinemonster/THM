@@ -4,6 +4,7 @@ from classbackground import cbackground
 from classlevel import clevel
 from classplayer import cplayer
 from classgrid import cgrid
+from classtext import ctext
 from classparticlecontroller import cparticlecontroller
 
 class cglobal(object):
@@ -28,6 +29,7 @@ class cglobal(object):
         self.level = clevel()
         self.player = cplayer()
         self.targets = []
+        self.otext = ctext()
         
         # CONFIGURE CLASS
         self.player.setup(self.DISPLAYSURF, self.level.offset)
@@ -87,6 +89,7 @@ class cglobal(object):
             #t.opf.grid.cellwidth = (self.DISPLAYSURF.get_width() / self.level.tilesize[0])
             #t.opf.grid.cellheight = (self.DISPLAYSURF.get_height() / self.level.tilesize[1])
             #    def collide(self, level, player, pcollection):
+            
             t.collide(self.level, self.player, self.particles, self.DISPLAYSURF)
         self.level.killtargets(self.particles) # REMOVE OLD TARGETS 
         
@@ -96,9 +99,10 @@ class cglobal(object):
         self.background.draw(self.DISPLAYSURF) # DRAW BACKGROUND
         self.level.draw(self.DISPLAYSURF) # DRAW LEVEL
         self.player.draw(self.DISPLAYSURF) # DRAW PLAYER
-                
+        
+        
+        self.otext.draw(self.DISPLAYSURF, "XY:" + str(self.level.pfinder.grid.getxy(self.player.pos - self.level.offset)), (self.player.pos[0], self.player.pos[1]+50),(255,0,0),255, 18, "")
         for t in self.level.targets:
-            
             t.draw(self.DISPLAYSURF, self.level.offset) # DRAW TARGETS
         
         # UPDATE DISPLAY

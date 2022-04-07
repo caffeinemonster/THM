@@ -25,8 +25,8 @@ class ctarget(object):  # particle group class
         self.rotation = 0 #random.randint(0,360) # target rotation
         self.playereffect = random.randint(25,50)
         self.sfx = csounds()
-        self.opf = cpathfinder()
-        self.surf = surf
+        #self.opf = cpathfinder()
+        #self.surf = surf
 #        self.grid = cgrid()
 
     def getimage(self):
@@ -120,7 +120,7 @@ class ctarget(object):  # particle group class
                 del(t)
                 spawnx = random.randint(0, level.levelsize[0])
                 spawny = random.randint(0, level.levelsize[1])
-                otarget = ctarget((-level.offset[0] + spawnx, -level.offset[1] + spawny), 'sprites/crate'  + str(random.randint(1,6)) + '.png', random.randint(5,10), random.randint(0,1), random.randint(1,4))
+                otarget = ctarget((-level.offset[0] + spawnx, -level.offset[1] + spawny), 'sprites/crate'  + str(random.randint(1,6)) + '.png', random.randint(5,10), random.randint(0,1), random.randint(1,4), surf)
                 level.targets.append(otarget)
                 bremove = 0
     

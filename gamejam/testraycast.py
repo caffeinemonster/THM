@@ -13,6 +13,5 @@ def main():
         pygame.display.flip()
         pygame.display.update()
         GCLOCK.tick(60)
-   
 main()
 

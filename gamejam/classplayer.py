@@ -1,5 +1,7 @@
 import pygame, math
-from classprojectiles import cprojectiles 
+from classprojectiles import cprojectiles
+from classtext import ctext
+
 
 
 
@@ -23,6 +25,7 @@ class cplayer(object):  # particle group class
         self.set_target(pygame.Vector2(self.pos))
         self.updatecenter()
         self.projectiles = cprojectiles()
+        self.otext = ctext()
 
     def setup(self, surf, offset):
         self.pos[0] = (surf.get_width() / 2) + offset[0]
@@ -67,8 +70,7 @@ class cplayer(object):  # particle group class
         #self.updateposlast()
     def checkkeys(self, event):
         #for event in pygame.event.get():
-        bshoot = 0 # ADD PROJECTILE? 
-        
+        bshoot = 0 # ADD PROJECTILE?
         # CHECK EVENT AND BUTTON QUEUE 
         # CHECK MOUSE EVENTS
         if event.type == MOUSEBUTTONDOWN:
@@ -131,5 +133,12 @@ class cplayer(object):  # particle group class
         pygame.draw.circle(surf, (000,222,000), self.playercenter, 4) # RENDER DEBUG IMAGES
         pygame.draw.circle(surf, (222,000,000), self.poslast, 4) # RENDER DEBUG IMAGES
         pygame.draw.circle(surf, (000,000,222), self.target, 4) # RENDER DEBUG IMAGES
+        pygame.draw.circle(surf, (000,255,000), self.pos, 4) # RENDER DEBUG IMAGES
+        
+        #def draw(self, surf, mytext, xy, mycolour, alpha, size, align = ""):
+        
+        self.otext.draw(surf, "POS:" + str(self.pos), (self.pos[0], self.pos[1]+20),(255,0,0),255, 18, "")
+        
+        
         
         

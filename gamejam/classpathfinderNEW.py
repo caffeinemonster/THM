@@ -19,13 +19,11 @@ class cpathfinder(object):
         self.grid = cgrid(xy[0],xy[1], surf) # grid class instance (holds level data)
         self.grid.create() # generaates initial level data 
         self.surf = surf # assigns DISPLAYSURF to self.surf (for eaasy access and debugging)
-        #self.pos_start = self.grid.getrandomcell() # pick random cell 
-        #self.pos_end = self.grid.getrandomcell() # pick random cell
+        self.pos_start = self.grid.getrandomcell() # pick random cell 
+        self.pos_end = self.grid.getrandomcell() # pick random cell
         self.stats = [] # holds heat map (every cells calculatyed distance to end pos)
-        self.pos_start = (0,0)
-        self.pos_end = (0,0)
-        #while self.pos_start == self.pos_end: # make sure endpos is not startpos 
-        #    self.pos_end = self.grid.getrandomcell() # get new end pos
+        while self.pos_start == self.pos_end: # make sure endpos is not startpos 
+            self.pos_end = self.grid.getrandomcell() # get new end pos
         self.open = [] # list to store array of open search locations 
         self.closed  = [] # list of closed search locations 
         self.open.append(node(self.pos_start)) # append start pos to open list sets 1st node to search 
@@ -56,10 +54,6 @@ class cpathfinder(object):
         return cellreturn # if not return original cell
         
     def calcpath(self, surf = ""): #, surf): # calculates A* optimal path / route
-        if self.pos_start == None: return
-        if self.pos_end == None: return
-        print(self.grid.data)
-        print(self.grid.data)
         ocolour = ccolour() 
         # build stats map for grid.
         for y in range(0,self.grid.y):
@@ -75,7 +69,7 @@ class cpathfinder(object):
             for o in self.open: # loop through open nodes
                 self.checkkeys() # check user keys 
                 # sanity check ... are we looking for a path that doesnt exist or costs to much time to calculate 
-                if self.step > 60: # any more than 50 steps assume failure (no route to goal)
+                if self.step > self.grid.x * self.grid.y: # any more than 50 steps assume failure (no route to goal)
                     bexit = 1 
                     break 
                 # check there isnt a more optimal node available in the search list 
@@ -83,11 +77,8 @@ class cpathfinder(object):
                     o = self.checknode(o, on) # check node and return/set optimal 
                 o.g = self.step  # add steps to node
                 o.h = self.grid.calculatedistance(o.xy, self.pos_end) # calculate distance to end goal 
-                o.f = o.g + o.h # heuristic value (distance + steps)
-                #print("something")                
-                if self.grid.getgridvalue(o.xy[0], o.xy[1]):
-                    #self.step += 1 # increase step count by one
-                    continue # check grid ref exists and is not a wall
+                o.f = o.g + o.h # heuristic value (distance + steps)                
+                if self.grid.getgridvalue(o.xy[0], o.xy[1]):continue # check grid ref exists and is not a wall
                 for n in neighbours: # check neighbour squares 
                     onode = node((o.xy[0] + n[0], o.xy[1] + n[1])) # create node
                     bskip = 0 # skip this node variable 
@@ -101,10 +92,8 @@ class cpathfinder(object):
                     onode.h = self.grid.calculatedistance(o.xy, self.pos_end) # set distance value 
                     onode.f = onode.g + onode.f # set heuristic value (step + distance)
                     onode.previousnode = o # set previous node to trace path 
-                    print("something")
-                    if not surf == "": 
-                        if not onode == "":
-                            self.grid.drawcell(surf, onode.xy[0], onode.xy[1], ocolour.getrgb("YELLOW"), 3, 2)
+                    
+                    if not surf == "": self.grid.drawcell(surf, onode.xy[0], onode.xy[1], ocolour.getrgb("YELLOW"), 3, 2) # highlight search 
                     self.open.append(onode) # add node to serach list 
                 self.step += 1 # increase step count by one
                 if o.xy == self.pos_end: # if path found (end goal reached)

@@ -49,8 +49,8 @@ class cgrid():
             return 1
     
     def getxy(self, xypos):
-        for y in range(0, self.y):
-            for x in range(0, self.x):
+        for y in range(0, self.y - 1):
+            for x in range(0, self.x - 1):
                 if xypos[0] <= (x * self.cellwidth):
                     if xypos[1] <= (y * self.cellheight):
                         return (x-1,y-1)
