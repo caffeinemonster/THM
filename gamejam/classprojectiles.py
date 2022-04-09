@@ -48,10 +48,10 @@ class cprojectiles(object):
             self.sfx.fxshoot()
             self.delay = self.delaytime
             
-    def slide(self,slide,xy):
-        for p in self.projectiles:
-            p.pos[xy] += slide
-            p.target[xy] += slide 
+    # def slide(self,slide,xy):
+        # for p in self.projectiles:
+            # p.pos[xy] += slide
+            # p.target[xy] += slide 
         
     def draw(self, surf, pcollection = ""):
        
@@ -88,22 +88,23 @@ class cprojectiles(object):
                 bullet = ""
                 del(bullet)
             
-    def collide(self, surf, targets, offset):
+    def collide(self, targets):
         for bullet in self.projectiles:
             bremove = 0
             bulletcenter = (bullet.pos[0] + (bullet.image.get_width() / 2), bullet.pos[1] + (bullet.image.get_height() / 2))
             
             if bullet.life <= 0:
                 bremove = 1
-                
-            for targ in targets:
-                if bulletcenter[0] >= targ.pos[0]+offset[0] and bulletcenter[0] <= targ.pos[0]+offset[0] + targ.image.get_width():
-                    if bulletcenter[1] >= targ.pos[1]+offset[1] and bulletcenter[1] <= targ.pos[1]+offset[1] + targ.image.get_height():
-                        if targ.damageable:
-                            targ.health = targ.health - self.damage
-                            targ.active = 1
-                        pcollection.seedfireballs(bulletcenter[0], bulletcenter[1])
-                        pcollection.seedstars(bulletcenter[0], bulletcenter[1])
+
+            for t in targets.targets:
+                if bulletcenter[0] >= t.pos[0] and bulletcenter[0] <= t.pos[0] + t.image.get_width():
+                    if bulletcenter[1] >= t.pos[1] and bulletcenter[1] <= t.pos[1] + t.image.get_height():
+                        if t.damageable:
+                            t.health = t.health - self.damage
+                            t.active = 1
+                            print("hit detected")
+                        #pcollection.seedfireballs(bulletcenter[0], bulletcenter[1])
+                        #pcollection.seedstars(bulletcenter[0], bulletcenter[1])
                         bremove = 1
                         self.sfx.fxhitwood()
                         

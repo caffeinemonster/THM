@@ -9,7 +9,7 @@ from classbackground import cbackground
 
 # import game classes 
 from classplayer import cplayer
-
+from classlevel import clevel
 
 class cglobal(object):
     def __init__(self):
@@ -53,6 +53,10 @@ class cglobal(object):
         # todo add game classes.
         self.player = cplayer()
         self.player.setup(self.DISPLAYSURF, (0,0))
+        self.level = clevel(self.DISPLAYSURF)
+        
+        # POST LOAD CONFIGURATION
+        self.pfinder.grid.data = self.level.leveldata
         
     def checkkeys(self):
         # GLOBAL KEYBOARD EVENTS
@@ -69,21 +73,23 @@ class cglobal(object):
             
     def update(self):
         self.player.update((0,0))
-        pass # code added here to update game elements before drawing 
+        self.level.update()
+        self.level.collide(self.player)
+        #pass # code added here to update game elements before drawing 
         
     def draw(self):
-        # DRAW GAME ELEMENTS 
+        # DRAW GAME ELEMENTS
         self.DISPLAYSURF.fill((0,0,0)) # FILL CANVAS BLACK
         self.background.draw(self.DISPLAYSURF) # DRAW BACKGROUND
-        
+        self.level.draw(self.DISPLAYSURF)
         # TEST TEXT CLASS
         #self.text.draw((200,200), (255,255,255), "HELLO WORLD")
         
         # TEST PATHFINDER CLASS
-        self.pfinder.grid.draw(self.DISPLAYSURF)
+        #self.pfinder.grid.draw(self.DISPLAYSURF)
 
         # TEST RENDER MOUSE POS TO GRID
-        self.pfinder.grid.draw(self.DISPLAYSURF)
+        #self.pfinder.grid.draw(self.DISPLAYSURF)
         mousex,mousey=pygame.mouse.get_pos()
         gridxy = self.pfinder.grid.getxy((mousex,mousey))
         if not int(self.pfinder.grid.getgridvalue(gridxy[0], gridxy[1])): self.pfinder.pos_start = gridxy
@@ -104,7 +110,6 @@ class cglobal(object):
             if self.debug:self.pfinder.grid.drawcell(self.DISPLAYSURF, tempcell.xy[0], tempcell.xy[1], (128,255,0), 5, 4)
             if self.debug:self.pfinder.grid.drawtext(self.DISPLAYSURF, tempcell.xy[0], tempcell.xy[1], str(int(tempcell.f)), 8)
             tempcell = tempcell.previousnode
-        
         if self.debug:self.pfinder.grid.drawcell(self.DISPLAYSURF, self.pfinder.pos_start[0], self.pfinder.pos_start[1], (0,255,0), 5, 4)
         if self.debug:self.pfinder.grid.drawcell(self.DISPLAYSURF, self.pfinder.pos_end[0], self.pfinder.pos_end[1], (255,0,0), 5, 4)
         if self.debug:self.text.draw((mousex,mousey+20), (255,255,255), str(gridxy), "")

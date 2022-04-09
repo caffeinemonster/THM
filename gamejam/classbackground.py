@@ -15,8 +15,7 @@ class cbackground(object):
                         self.background.blit(self.image, (x*self.image.get_width(), y*self.image.get_height()))
             return 
         if id == 1: # background style 
-            return 
-        
+            return
         
     def draw(self, surf):
         self.generateimage(surf)

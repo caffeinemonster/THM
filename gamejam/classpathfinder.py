@@ -62,6 +62,9 @@ class cpathfinder(object):
     def calcpath(self, surf = ""): #, surf): # calculates A* optimal path / route
         if self.pos_start == None: return
         if self.pos_end == None: return
+        if self.grid.getgridvalue(self.pos_start[0], self.pos_start[1]): return 
+        if self.grid.getgridvalue(self.pos_end[0], self.pos_end[1]): return 
+        
         ocolour = ccolour()        
         if not surf == "":
             if self.visualise:self.grid.drawcell(surf, self.pos_start[0], self.pos_start[1], (0,255,0),0,0)
@@ -141,7 +144,8 @@ class cpathfinder(object):
             self.grid.drawcell(surf, tempcell.xy[0], tempcell.xy[1], (128,255,0), 5, 4)
             self.grid.drawtext(surf, tempcell.xy[0], tempcell.xy[1], str(int(tempcell.f)), 8)
             tempcell = tempcell.previousnode
-            
+        pygame.display.flip()
+        pygame.display.update()
         
         
             

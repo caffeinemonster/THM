@@ -7,7 +7,6 @@ class ctext(object):  # particle group class
         self.surf = surf
         self.alpha = 255
         self.colourkey = (0,0,0)
-        
     def draw(self, xy, colour, text, align = ""):
         img = self.font.render(text, True, colour)
         img.set_alpha(self.alpha)
