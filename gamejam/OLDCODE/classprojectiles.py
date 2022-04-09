@@ -80,21 +80,18 @@ class cprojectiles(object):
         for bullet in self.projectiles:
             bullet.update(pcollection)
             bullet.draw(surf)
-            bremove = 0
-            if bullet.target == bullet.pos:
-                bremove = 1
-            if bremove:
-                self.projectiles.pop(self.projectiles.index(bullet))
-                bullet = ""
-                del(bullet)
             
-    def collide(self, surf, targets, offset):
+    def collide(self, surf, targets, pcollection, offset):
         for bullet in self.projectiles:
             bremove = 0
             bulletcenter = (bullet.pos[0] + (bullet.image.get_width() / 2), bullet.pos[1] + (bullet.image.get_height() / 2))
-            
             if bullet.life <= 0:
                 bremove = 1
+            
+            #if bulletcenter[0] > 0 or bulletcenter[0] > surf.get_width()-offset[0]:
+            #    bremove = 1
+            #if bulletcenter[1] < 0 or bulletcenter[1] > surf.get_height()-offset[1]:
+            #    bremove = 1
                 
             for targ in targets:
                 if bulletcenter[0] >= targ.pos[0]+offset[0] and bulletcenter[0] <= targ.pos[0]+offset[0] + targ.image.get_width():

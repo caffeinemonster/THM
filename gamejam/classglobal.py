@@ -1,39 +1,59 @@
-import pygame, sys
+# import pygame library and core modules 
+import pygame, sys, time
 from pygame.locals import *
-from classbackground import cbackground
-from classlevel import clevel
-from classplayer import cplayer
-from classgrid import cgrid
+
+# import game engine classes
 from classtext import ctext
-from classparticlecontroller import cparticlecontroller
+from classpathfinder import cpathfinder 
+from classbackground import cbackground
+
+# import game classes 
+from classplayer import cplayer
+
 
 class cglobal(object):
     def __init__(self):
-        # INITIALISE PYGAME 
+        self.debug = 1
+        # INITIALISE PYGAME
+        if self.debug == 1: print("Initialise pygame.")
         pygame.init()
         pygame.mixer.init()
+        
+        # INITIALISE PYGAME MIXER
+        if self.debug == 1: print("Initialise pygame mixer.")
         pygame.mixer.music.load('music/TRACK1.mp3')  
-        pygame.mixer.music.play()  
-        pygame.mixer.music.set_volume(0.05)
+        pygame.mixer.music.play(-1)  
+        pygame.mixer.music.set_volume(0.01)
         
         # SET CORE VARIABLES 
+        if self.debug == 1: print("Initialise display surface.")
         self.DISPLAYSURF = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)    
+        if self.debug == 1: print("Set core variables.")
         self.DSIZEX = self.DISPLAYSURF.get_width()
         self.DSIZEY = self.DISPLAYSURF.get_height()
+        self.GRIDX = 32
+        self.GRIDY = 18
+        self.FRAMERATE = 60
+        
+        if self.debug == 1: print("Set clock.")
         self.GCLOCK = pygame.time.Clock()
+        
+        if self.debug == 1: print("Set window caption.")
         pygame.display.set_caption('GAMEJAMMER')
         
-        # INITIALISE CLASSES
-        self.background = cbackground()
-        self.particles = cparticlecontroller()
-        self.level = clevel()
-        self.player = cplayer()
-        self.targets = []
-        self.otext = ctext()
+        # INITIALISE CORE CLASSES
+        if self.debug == 1: print("Initialise core classes.")
+        self.background = cbackground() # core class - controls background image 
+        self.text = ctext(self.DISPLAYSURF) # core class - used to render text to surfaces 
+        self.pfinder = cpathfinder(self.DISPLAYSURF, (self.GRIDX, self.GRIDY))
+        self.updatetimer = 0
+        if self.debug == 1: print("Global initialisation complete.")
         
-        # CONFIGURE CLASS
-        self.player.setup(self.DISPLAYSURF, self.level.offset)
-    
+        # INITIALISE GAME CLASSES
+        # todo add game classes.
+        self.player = cplayer()
+        self.player.setup(self.DISPLAYSURF, (0,0))
+        
     def checkkeys(self):
         # GLOBAL KEYBOARD EVENTS
         for event in pygame.event.get():
@@ -46,66 +66,66 @@ class cglobal(object):
                     pygame.mixer.quit()
                     pygame.quit()
                     sys.exit()
-            # CHECK PLAYER KEYS
-            self.player.checkkeys(event)
             
-        # SLIDE SCREEN CALCULATIONS
-        keys = pygame.key.get_pressed()
-        islide = 0
-        xy = 0
-        slideamount = 20
-        if pygame.mouse.get_pos()[1] == 0 or keys[K_w]: #slide up 
-            xy = 1
-            islide = +slideamount
-        if pygame.mouse.get_pos()[1] == self.DISPLAYSURF.get_height()-1 or keys[K_s]: #slide down 
-            xy = 1
-            islide = -slideamount
-        if pygame.mouse.get_pos()[0] == self.DISPLAYSURF.get_width()-1 or keys[K_d]: #slide right 
-            xy = 0
-            islide = -slideamount
-        if pygame.mouse.get_pos()[0] == 0 or keys[K_a]: #slide left 
-            xy = 0
-            islide = +slideamount
-        
-        if islide:
-            # SET LEVEL OFFSET 
-            self.level.offset[xy] += islide
-            # SLIDE PLAYER 
-            self.player.target = self.player.pos
-            self.player.slide(-islide/2 ,xy)
-            self.player.projectiles.slide(+islide,xy)
-                    
     def update(self):
-        # UPDATE GAME ELEMENTS       
-        self.player.projectiles.collide(self.DISPLAYSURF, self.level.targets, self.particles, self.level.offset) # CHECK PLAYER BULLET COLLISIONS
-        self.level.updatetargets(self.player, self.DISPLAYSURF) 
-        self.player.update(self.level.offset) # MOVE PLAYER 
-        self.level.collide(self.player, self.particles)  # CHECK PLAYER / LEVEL COLLISIONS
-        
-        # UPDATE TARGETS
-        for t in self.level.targets:
-            #print("targetcollide")
-            #t.opf.data = self.level.leveldata
-            #t.opf.grid.cellwidth = (self.DISPLAYSURF.get_width() / self.level.tilesize[0])
-            #t.opf.grid.cellheight = (self.DISPLAYSURF.get_height() / self.level.tilesize[1])
-            #    def collide(self, level, player, pcollection):
-            
-            t.collide(self.level, self.player, self.particles, self.DISPLAYSURF)
-        self.level.killtargets(self.particles) # REMOVE OLD TARGETS 
+        self.player.update((0,0))
+        pass # code added here to update game elements before drawing 
         
     def draw(self):
         # DRAW GAME ELEMENTS 
         self.DISPLAYSURF.fill((0,0,0)) # FILL CANVAS BLACK
         self.background.draw(self.DISPLAYSURF) # DRAW BACKGROUND
-        self.level.draw(self.DISPLAYSURF) # DRAW LEVEL
-        self.player.draw(self.DISPLAYSURF) # DRAW PLAYER
+        
+        # TEST TEXT CLASS
+        #self.text.draw((200,200), (255,255,255), "HELLO WORLD")
+        
+        # TEST PATHFINDER CLASS
+        self.pfinder.grid.draw(self.DISPLAYSURF)
+
+        # TEST RENDER MOUSE POS TO GRID
+        self.pfinder.grid.draw(self.DISPLAYSURF)
+        mousex,mousey=pygame.mouse.get_pos()
+        gridxy = self.pfinder.grid.getxy((mousex,mousey))
+        if not int(self.pfinder.grid.getgridvalue(gridxy[0], gridxy[1])): self.pfinder.pos_start = gridxy
+        if self.updatetimer > 250:
+            self.updatetimer = 0
+            self.pfinder.randomise()
+        else: self.updatetimer +=1
+        
+        o = self.pfinder.calcpath(self.DISPLAYSURF)
+        if self.debug:self.pfinder.grid.drawcell(self.DISPLAYSURF, gridxy[0], gridxy[1],(0,255,0),0,0)
+        if self.debug:self.text.draw((mousex,mousey+40), (255,255,255), str((mousex,mousey)))
+        
+        tempcell = o
+        while not tempcell == None:
+            if tempcell == "": break
+            if tempcell.previousnode == None: break
+            if tempcell.previousnode == "": break
+            if self.debug:self.pfinder.grid.drawcell(self.DISPLAYSURF, tempcell.xy[0], tempcell.xy[1], (128,255,0), 5, 4)
+            if self.debug:self.pfinder.grid.drawtext(self.DISPLAYSURF, tempcell.xy[0], tempcell.xy[1], str(int(tempcell.f)), 8)
+            tempcell = tempcell.previousnode
+        
+        if self.debug:self.pfinder.grid.drawcell(self.DISPLAYSURF, self.pfinder.pos_start[0], self.pfinder.pos_start[1], (0,255,0), 5, 4)
+        if self.debug:self.pfinder.grid.drawcell(self.DISPLAYSURF, self.pfinder.pos_end[0], self.pfinder.pos_end[1], (255,0,0), 5, 4)
+        if self.debug:self.text.draw((mousex,mousey+20), (255,255,255), str(gridxy), "")
         
         
-        self.otext.draw(self.DISPLAYSURF, "XY:" + str(self.level.pfinder.grid.getxy(self.player.pos - self.level.offset)), (self.player.pos[0], self.player.pos[1]+50),(255,0,0),255, 18, "")
-        for t in self.level.targets:
-            t.draw(self.DISPLAYSURF, self.level.offset) # DRAW TARGETS
+        self.player.draw(self.DISPLAYSURF)
+        
+        #time.sleep(0.1)
+        #pygame.display.flip()
+        #pygame.display.update()
+        #time.sleep(1)
+        # SET START POS BASED ON MOUSE POS
+        #self.pfinder.grid.drawtext(self.DISPLAYSURF, gridxy[0], gridxy[1], str(gridxy), 8)
+        #self.grid.drawcell(surf, self.pos_start[0], self.pos_start[1], (0,255,0),0,0)
+        #self.pfinder.create(self.DISPLAYSURF, (self.GRIDX, self.GRIDY))
+        
+
+        
         
         # UPDATE DISPLAY
+        if self.debug == 1: print("Updating global display buffer.")
         pygame.display.flip() # UPDATE DISPLAY BUFFER
         pygame.display.update() # UPDATE DISPLAY BUFFER
-        self.GCLOCK.tick(60) # SET FRAMERATE 
+        self.GCLOCK.tick(self.FRAMERATE) # SET FRAMERATE

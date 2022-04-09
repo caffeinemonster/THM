@@ -1,6 +1,6 @@
 import pygame, math
 from classprojectiles import cprojectiles
-#from classtext import ctext
+from classtext import ctext
 
 
 
@@ -19,14 +19,13 @@ class cplayer(object):  # particle group class
         self.imageoriginal = self.image
         self.pos = pygame.Vector2(0, 0)
         self.poslast = pygame.Vector2(self.pos)
-        #self.validpos = []
+        self.validpos = []
         self.target = pygame.Vector2(self.pos)
         self.updatecenter() #pygame.Vector2((self.pos[0] - (self.image.get_width() / 2), self.pos[1] - (self.image.get_height() / 2)))
         self.set_target(pygame.Vector2(self.pos))
         self.updatecenter()
         self.projectiles = cprojectiles()
-        
-        #self.otext = ctext()
+        self.otext = ctext()
 
     def setup(self, surf, offset):
         self.pos[0] = (surf.get_width() / 2) + offset[0]
@@ -36,7 +35,7 @@ class cplayer(object):  # particle group class
         self.target = self.pos
         self.updatecenter()
     
-    def slide(self, slide, xy):
+    def slide(self,slide,xy):
         self.poslast[xy] += -slide
         self.pos[xy] += -slide
         self.target[xy] += -slide
@@ -46,7 +45,6 @@ class cplayer(object):  # particle group class
         self.target = pygame.Vector2(pos)
     
     def update(self, offset):
-        self.checkkeys()
         if self.health > self.totalhealth:
             self.health = self.totalhealth
     
@@ -70,27 +68,26 @@ class cplayer(object):  # particle group class
         
         self.updatecenter()
         #self.updateposlast()
-    def checkkeys(self):
+    def checkkeys(self, event):
         #for event in pygame.event.get():
         bshoot = 0 # ADD PROJECTILE?
         # CHECK EVENT AND BUTTON QUEUE 
         # CHECK MOUSE EVENTS
-        for event in pygame.event.get():
-            if event.type == MOUSEBUTTONDOWN:
-                if event.button == 1: # left click
-                    self.set_target(pygame.mouse.get_pos() + pygame.Vector2(self.image.get_width() / 2, self.image.get_width() / 2))
-                if event.button == 3: # right click
-                    bshoot = 1
-            # CHECK KEYDOWN EVENTS 
-            elif event.type == KEYDOWN:               
-                if event.key == K_SPACE:
-                    bshoot = 1
-                if event.key == K_r:
-                    # RELOAD MAG (PLAYER PROJECTILES)
-                    if not self.projectiles.magcurrent == self.projectiles.magsize:
-                        self.projectiles.reload = self.projectiles.reloadtime
-                        self.projectiles.ammo = self.projectiles.ammo
-                        self.projectiles.magcurrent = 0
+        if event.type == MOUSEBUTTONDOWN:
+            if event.button == 1: # left click
+                self.set_target(pygame.mouse.get_pos() + pygame.Vector2(self.image.get_width() / 2, self.image.get_width() / 2))
+            if event.button == 3: # right click
+                bshoot = 1
+        # CHECK KEYDOWN EVENTS 
+        elif event.type == KEYDOWN:               
+            if event.key == K_SPACE:
+                bshoot = 1
+            if event.key == K_r:
+                # RELOAD MAG (PLAYER PROJECTILES)
+                if not self.projectiles.magcurrent == self.projectiles.magsize:
+                    self.projectiles.reload = self.projectiles.reloadtime
+                    self.projectiles.ammo = self.projectiles.ammo
+                    self.projectiles.magcurrent = 0
 
         # CHECK KEYPRESS EVENTS
         keys = pygame.key.get_pressed()
@@ -139,7 +136,8 @@ class cplayer(object):  # particle group class
         pygame.draw.circle(surf, (000,255,000), self.pos, 4) # RENDER DEBUG IMAGES
         
         #def draw(self, surf, mytext, xy, mycolour, alpha, size, align = ""):
-        #self.otext.draw(surf, "POS:" + str(self.pos), (self.pos[0], self.pos[1]+20),(255,0,0),255, 18, "")
+        
+        self.otext.draw(surf, "POS:" + str(self.pos), (self.pos[0], self.pos[1]+20),(255,0,0),255, 18, "")
         
         
         
