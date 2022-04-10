@@ -16,10 +16,10 @@ class cpathfinder(object):
         self.create(surf,xy)
     
     def randomise(self):
-        self.pos_start = self.grid.getrandomcell() # pick random cell 
-        self.pos_end = self.grid.getrandomcell() # pick random cell
-        while self.pos_start == self.pos_end or int(self.grid.getgridvalue(self.pos_end[0], self.pos_end[1])): # make sure endpos is not startpos 
-            self.pos_end = self.grid.getrandomcell() # get new end pos
+       self.pos_start = self.grid.getrandomcell() # pick random cell 
+       self.pos_end = self.grid.getrandomcell() # pick random cell
+       while self.pos_start == self.pos_end or int(self.grid.getgridvalue(self.pos_end[0], self.pos_end[1])): # make sure endpos is not startpos 
+           self.pos_end = self.grid.getrandomcell() # get new end pos
        
     def create(self, surf, xy):
         self.step = 0 # variable to hold steps taken towards goal 
@@ -62,9 +62,10 @@ class cpathfinder(object):
     def calcpath(self, surf = ""): #, surf): # calculates A* optimal path / route
         if self.pos_start == None: return
         if self.pos_end == None: return
+        
         if self.grid.getgridvalue(self.pos_start[0], self.pos_start[1]): return 
         if self.grid.getgridvalue(self.pos_end[0], self.pos_end[1]): return 
-        
+
         ocolour = ccolour()        
         if not surf == "":
             if self.visualise:self.grid.drawcell(surf, self.pos_start[0], self.pos_start[1], (0,255,0),0,0)
@@ -74,7 +75,7 @@ class cpathfinder(object):
         self.step = 0
         self.open = [] # list to store array of open search locations 
         self.closed  = [] # list of closed search locations 
-        self.open.append(node(self.pos_start)) # append start pos to open list sets 1st node to search         
+        self.open.append(node(self.pos_start)) # append start pos to open list sets 1st node to search
         ### end reset 
 
         # CALCULATION STARTS HERE        
@@ -136,6 +137,7 @@ class cpathfinder(object):
                     return node(self.pos_start) # return the startpos if no path found 
                     bexit = 1 # exit routine 
                     break # break for loop
+    
     def draw(self, surf, o):
         if not self.visualise: return
         tempcell = o

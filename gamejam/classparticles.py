@@ -1,7 +1,6 @@
 import pygame
 from pygame.locals import *
 from classparticle import cparticle
-from classtext import ctext
 import random
 
 
@@ -14,7 +13,7 @@ class cparticles(object):  # particle group class
         self.draworder = 9
         self.x = 0
         self.y = 0
-        self.otext = ctext()
+        #self.otext = ctext()
 
     def seed(self, x, y, speed, life, amount, rgbcolour, size):
         self.x = x

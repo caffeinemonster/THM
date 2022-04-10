@@ -23,33 +23,33 @@ class ctargets(object):  # target group class
                 move = move * targ.speed
                 targ.pos += move
             
-            if targ.targettype == 4:
-                if targ.timer <= 0: # retargeting timer
-                    targ.timer = targ.timertotal
-                    if random.randint(0,100) >= 50:
-                        targ.active = 1
-                        targ.followplayer = 1
-                        targ.speed = random.randint(1,4)
-                    else:
-                        targ.speed = random.randint(1,2)
-                else: targ.timer -= 1
-            if not targ.active:
-                targ.speed = 0
-                targ.target = targ.pos
-                
+            #if targ.targettype == 4:
+                # if targ.timer <= 0: # retargeting timer
+                    # targ.timer = targ.timertotal
+                    # if random.randint(0,100) >= 50:
+                        # targ.active = 1
+                        # targ.followplayer = 1
+                        # targ.speed = random.randint(1,4)
+                    # else:
+                        # targ.speed = random.randint(1,2)
+                # else: targ.timer -= 1
+            # if not targ.active:
+                # targ.speed = 0
+                # targ.target = targ.pos
         self.killtargets() # removes targets that have 0 life
         
     
     def collide(self, level, player):
         bremove = 0
         for t in self.targets:
-            if player.playercenter[0] >= t.pos[0]+level.offset[0] and player.playercenter[0] <= t.pos[0]+level.offset[0] + t.image.get_width():
-                if player.playercenter[1] >= t.pos[1]+level.offset[1] and player.playercenter[1] <= t.pos[1]+level.offset[1] + t.image.get_height():
+            if player.playercenter[0] >= t.pos[0] and player.playercenter[0] <= t.pos[0] + t.image.get_width():
+                if player.playercenter[1] >= t.pos[1] and player.playercenter[1] <= t.pos[1] + t.image.get_height():
+                    
                     if t.damageable:                            
                         bremove = 1
                     else:
                         player.pos = player.poslast
-                        player.tet = player.poslast
+                        player.target = player.poslast
                         player.speed = 0
                     
                     if int(t.targettype) == 0:
@@ -78,20 +78,19 @@ class ctargets(object):  # target group class
                             if random.randint(0,100) >= 95: # 5% chance of attacking player         
                                 t.target = player.playercenter
                             else:
-                                t.target = pygame.Vector2(random.randint(0,level.levelsize[0])+level.offset[0], random.randint(0,level.levelsize[1]+level.offset[1]))
+                                t.target = pygame.Vector2(random.randint(0,level.levelsize[0]), random.randint(0,level.levelsize[1]))
                         if not t.active:
                             t.speed = 0
                             t.target = t.pos
             
             if bremove: # needs fixing to respawn on square that isnt a wall 
                 self.targets.remove(t)
-                #del(t)
                 spawnx = random.randint(0, level.levelsize[0])
                 spawny = random.randint(0, level.levelsize[1])
-                otarget = ctarget((-level.offset[0] + spawnx, -level.offset[1] + spawny), 'sprites/crate'  + str(random.randint(1,6)) + '.png', random.randint(5,10), random.randint(0,1), random.randint(1,4))
-                
+                otarget = ctarget((spawnx,spawny), 'sprites/crate'  + str(random.randint(1,6)) + '.png', random.randint(5,10), random.randint(0,1), random.randint(1,4))
                 self.targets.append(otarget)
                 bremove = 0
+                
     def killtargets(self):
         for targ in self.targets:
             if targ.health <= 0:

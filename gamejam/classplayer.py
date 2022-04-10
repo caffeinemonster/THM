@@ -1,5 +1,6 @@
 import pygame, math
 from classprojectiles import cprojectiles
+from classparticlecontroller import cparticlecontroller
 #from classtext import ctext
 
 
@@ -9,6 +10,7 @@ from pygame.locals import *
 class cplayer(object):  # particle group class
     def __init__(self):
         # initialise player class
+        self.debug = 0
         self.lives = 3
         self.health = 100
         self.totalhealth = self.health
@@ -24,7 +26,9 @@ class cplayer(object):  # particle group class
         self.updatecenter() #pygame.Vector2((self.pos[0] - (self.image.get_width() / 2), self.pos[1] - (self.image.get_height() / 2)))
         self.set_target(pygame.Vector2(self.pos))
         self.updatecenter()
+        
         self.projectiles = cprojectiles()
+        self.particles = cparticlecontroller()
         
         #self.otext = ctext()
 
@@ -133,10 +137,12 @@ class cplayer(object):  # particle group class
         surf.blit(pygame.transform.rotate(self.image, self.rotation), (self.playercenter[0] - self.image.get_width()/2, self.playercenter[1] - self.image.get_height()/2))
         
         # DRAW DEBUG DATA
-        pygame.draw.circle(surf, (000,222,000), self.playercenter, 4) # RENDER DEBUG IMAGES
-        pygame.draw.circle(surf, (222,000,000), self.poslast, 4) # RENDER DEBUG IMAGES
-        pygame.draw.circle(surf, (000,000,222), self.target, 4) # RENDER DEBUG IMAGES
-        pygame.draw.circle(surf, (000,255,000), self.pos, 4) # RENDER DEBUG IMAGES
+        if self.debug: pygame.draw.circle(surf, (000,222,000), self.playercenter, 4) # RENDER DEBUG IMAGES
+        if self.debug: pygame.draw.circle(surf, (222,000,000), self.poslast, 4) # RENDER DEBUG IMAGES
+        if self.debug: pygame.draw.circle(surf, (000,000,222), self.target, 4) # RENDER DEBUG IMAGES
+        if self.debug: pygame.draw.circle(surf, (000,255,000), self.pos, 4) # RENDER DEBUG IMAGES
+        
+        self.particles.draw(surf)
         
         #def draw(self, surf, mytext, xy, mycolour, alpha, size, align = ""):
         #self.otext.draw(surf, "POS:" + str(self.pos), (self.pos[0], self.pos[1]+20),(255,0,0),255, 18, "")

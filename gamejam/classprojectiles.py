@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 from classsounds import csounds
 from classprojectile import cprojectile
+from classparticlecontroller import cparticlecontroller
 class cprojectiles(object):
     def __init__(self):
         self.sfx = csounds()
@@ -17,8 +18,10 @@ class cprojectiles(object):
         self.delay = self.delaytime
         self.imagepath = 'sprites/bullet1.png'
         self.image = pygame.image.load(self.imagepath)
+        self.particles = cparticlecontroller()
+        
     
-    def seed(self,x,y,radius,colour,rotation,targpos,pcollection = ""):
+    def seed(self,x,y,radius,colour,rotation,targpos):
         if self.reload <= 0:
             self.reload = 0
             
@@ -43,8 +46,9 @@ class cprojectiles(object):
             obullet.image = self.image
             self.image = pygame.image.load(self.imagepath)
             self.projectiles.append(obullet)
-            if not pcollection == "":
-                pcollection.seedemptyshell(x, y)
+            
+            self.particles.seedemptyshell(x, y)
+            
             self.sfx.fxshoot()
             self.delay = self.delaytime
             
@@ -87,6 +91,7 @@ class cprojectiles(object):
                 self.projectiles.pop(self.projectiles.index(bullet))
                 bullet = ""
                 del(bullet)
+        self.particles.draw(surf)
             
     def collide(self, targets):
         for bullet in self.projectiles:
@@ -102,9 +107,7 @@ class cprojectiles(object):
                         if t.damageable:
                             t.health = t.health - self.damage
                             t.active = 1
-                            print("hit detected")
-                        #pcollection.seedfireballs(bulletcenter[0], bulletcenter[1])
-                        #pcollection.seedstars(bulletcenter[0], bulletcenter[1])
+                            t.speed = 2
                         bremove = 1
                         self.sfx.fxhitwood()
                         

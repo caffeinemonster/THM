@@ -58,69 +58,57 @@ class ctarget(object):  # particle group class
             C = (int(R),int(G),0)
             if self.damageable:
                 if self.drawhealth == 1:
-                    print(self.pos)
+                    #print(self.pos)
                     pygame.draw.line(surf,C,(self.pos[0], self.pos[1] + self.image.get_height()),(self.pos[0] + healthbar, self.pos[1] + self.image.get_height()))
             
-    # def update(self):
-        # #for targ in self.targets:
-        # move = self.target - self.pos
-        # move_length = move.length()
-        # if move_length < self.speed:
-            # self.target = self.pos
-            # self.speed = 0
-        # elif move_length != 0:
-            # move.normalize_ip()
-            # move = move * self.speed
-            # self.pos += move
+    # def collide(self, level, player, surf):
+        # bremove = 0
+        # for t in level.targets:
+            # if player.playercenter[0] >= t.pos[0]+level.offset[0] and player.playercenter[0] <= t.pos[0]+level.offset[0] + t.image.get_width():
+                # if player.playercenter[1] >= t.pos[1]+level.offset[1] and player.playercenter[1] <= t.pos[1]+level.offset[1] + t.image.get_height():
+                    # if t.damageable:                            
+                        # # pcollection.seedstars(player.playercenter[0], player.playercenter[1])
+                        # bremove = 1
+                        # # self.sfx.fxeat()
+                    # else:
+                        # player.pos = player.poslast
+                        # player.tet = player.poslast
+                        # player.speed = 0
+                    
+                    # if int(t.targettype) == 0:
+                        # self.playereffect = self.playereffect #do nothing
+                    
+                    # if int(t.targettype) == 1:    
+                        # bremove = 1
+                        # t.health = 0
+                        # player.health += t.playereffect
+                    # if int(t.targettype) == 2:
+                        # bremove = 1
+                        # t.health = 0
+                        # player.projectiles.ammo += t.playereffect
+                    # if int(t.targettype) == 3:
+                        # bremove = 1
+                        # t.health = 0
+                        # player.lives += t.playereffect
+                    
+                    # if int(t.targettype) == 4: #enemy
+                        # bremove = 1
+                        # player.health -= self.playereffect
+                        # if t.timer <= 0: # retargeting timer
+                            # t.timer = t.timertotal
+                            # if random.randint(0,100) >= 95: # 5% chance of attacking player         
+                                # t.target = player.playercenter
+                            # else:
+                                # t.target = pygame.Vector2(random.randint(0,level.levelsize[0])+level.offset[0], random.randint(0,level.levelsize[1]+level.offset[1]), surf)
+                        # if not t.active:
+                            # t.speed = 0
+                            # t.target = t.pos
             
-    def collide(self, level, player, surf):
-        bremove = 0
-        for t in level.targets:
-            if player.playercenter[0] >= t.pos[0]+level.offset[0] and player.playercenter[0] <= t.pos[0]+level.offset[0] + t.image.get_width():
-                if player.playercenter[1] >= t.pos[1]+level.offset[1] and player.playercenter[1] <= t.pos[1]+level.offset[1] + t.image.get_height():
-                    if t.damageable:                            
-                        #pcollection.seedstars(player.playercenter[0], player.playercenter[1])
-                        bremove = 1
-                        #self.sfx.fxeat()
-                    else:
-                        player.pos = player.poslast
-                        player.tet = player.poslast
-                        player.speed = 0
-                    
-                    if int(t.targettype) == 0:
-                        self.playereffect = self.playereffect #do nothing
-                    
-                    if int(t.targettype) == 1:    
-                        bremove = 1
-                        t.health = 0
-                        player.health += t.playereffect
-                    if int(t.targettype) == 2:
-                        bremove = 1
-                        t.health = 0
-                        player.projectiles.ammo += t.playereffect
-                    if int(t.targettype) == 3:
-                        bremove = 1
-                        t.health = 0
-                        player.lives += t.playereffect
-                    
-                    if int(t.targettype) == 4: #enemy
-                        bremove = 1
-                        player.health -= self.playereffect
-                        if t.timer <= 0: # retargeting timer
-                            t.timer = t.timertotal
-                            if random.randint(0,100) >= 95: # 5% chance of attacking player         
-                                t.target = player.playercenter
-                            else:
-                                t.target = pygame.Vector2(random.randint(0,level.levelsize[0])+level.offset[0], random.randint(0,level.levelsize[1]+level.offset[1]), surf)
-                        if not t.active:
-                            t.speed = 0
-                            t.target = t.pos
-            
-            if bremove:
-                level.targets.pop(level.targets.index(t))
-                del(t)
-                spawnx = random.randint(0, level.levelsize[0])
-                spawny = random.randint(0, level.levelsize[1])
-                otarget = ctarget((-level.offset[0] + spawnx, -level.offset[1] + spawny), 'sprites/crate'  + str(random.randint(1,6)) + '.png', random.randint(5,10), random.randint(0,1), random.randint(1,4), surf)
-                level.targets.append(otarget)
-                bremove = 0
+            # if bremove:
+                # level.targets.pop(level.targets.index(t))
+                # del(t)
+                # spawnx = random.randint(0, level.levelsize[0])
+                # spawny = random.randint(0, level.levelsize[1])
+                # otarget = ctarget((-level.offset[0] + spawnx, -level.offset[1] + spawny), 'sprites/crate'  + str(random.randint(1,6)) + '.png', random.randint(5,10), random.randint(0,1), random.randint(1,4), surf)
+                # level.targets.append(otarget)
+                # bremove = 0
