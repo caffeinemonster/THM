@@ -1,4 +1,4 @@
-import pygame, math
+import pygame, math, sys
 from classprojectiles import cprojectiles
 from classparticlecontroller import cparticlecontroller
 #from classtext import ctext
@@ -10,7 +10,7 @@ from pygame.locals import *
 class cplayer(object):  # particle group class
     def __init__(self):
         # initialise player class
-        self.debug = 0
+        self.debug = 1
         self.lives = 3
         self.health = 100
         self.totalhealth = self.health
@@ -21,16 +21,12 @@ class cplayer(object):  # particle group class
         self.imageoriginal = self.image
         self.pos = pygame.Vector2(0, 0)
         self.poslast = pygame.Vector2(self.pos)
-        #self.validpos = []
         self.target = pygame.Vector2(self.pos)
-        self.updatecenter() #pygame.Vector2((self.pos[0] - (self.image.get_width() / 2), self.pos[1] - (self.image.get_height() / 2)))
+        self.updatecenter()
         self.set_target(pygame.Vector2(self.pos))
         self.updatecenter()
-        
         self.projectiles = cprojectiles()
         self.particles = cparticlecontroller()
-        
-        #self.otext = ctext()
 
     def setup(self, surf, offset):
         self.pos[0] = (surf.get_width() / 2) + offset[0]
@@ -70,10 +66,8 @@ class cplayer(object):  # particle group class
             move.normalize_ip()
             move = move * self.speed
             self.pos += move
-            
-        
         self.updatecenter()
-        #self.updateposlast()
+        
     def checkkeys(self):
         #for event in pygame.event.get():
         bshoot = 0 # ADD PROJECTILE?
@@ -82,7 +76,7 @@ class cplayer(object):  # particle group class
         for event in pygame.event.get():
             if event.type == MOUSEBUTTONDOWN:
                 if event.button == 1: # left click
-                    self.set_target(pygame.mouse.get_pos() + pygame.Vector2(self.image.get_width() / 2, self.image.get_width() / 2))
+                    self.set_target(pygame.mouse.get_pos() - pygame.Vector2(self.image.get_width() / 2, self.image.get_width() / 2))
                 if event.button == 3: # right click
                     bshoot = 1
             # CHECK KEYDOWN EVENTS 
@@ -100,7 +94,10 @@ class cplayer(object):  # particle group class
         keys = pygame.key.get_pressed()
         if keys[K_SPACE]:
             bshoot = 1
-            
+        if keys[K_ESCAPE]:
+            pygame.mixer.quit()
+            pygame.quit()
+            sys.exit()
         # ADD PROJECTILE TO ARRAY?
         if bshoot: self.projectiles.seed(self.playercenter[0],self.playercenter[1],1,(255,255,255),self.rotation, pygame.mouse.get_pos())
             
@@ -108,7 +105,7 @@ class cplayer(object):  # particle group class
         self.poslast = pygame.Vector2(self.pos)
         
     def updatecenter(self):
-        self.playercenter = pygame.Vector2((self.pos[0] - (self.image.get_width() / 2), self.pos[1] - (self.image.get_height() / 2)))
+        self.playercenter = pygame.Vector2((self.pos[0] + (self.image.get_width() / 2), self.pos[1] + (self.image.get_height() / 2)))
         
     def draw(self, surf):
         
@@ -134,14 +131,16 @@ class cplayer(object):  # particle group class
         pygame.draw.line(surf,(int(R),int(G),0),(self.pos[0]-self.image.get_width(), self.pos[1] + self.image.get_height()/2),(self.pos[0] + healthbar - (self.image.get_width()), self.pos[1] + self.image.get_height()/2))
         
         # DRAW PLAYER IMAGE 
-        surf.blit(pygame.transform.rotate(self.image, self.rotation), (self.playercenter[0] - self.image.get_width()/2, self.playercenter[1] - self.image.get_height()/2))
+        surf.blit(pygame.transform.rotate(self.image, self.rotation), (self.pos[0], self.pos[1]))
+        
+        rect = (self.pos[0],self.pos[1],  self.image.get_width(), self.image.get_height())        
+        pygame.draw.rect(surf, (128,0,0), rect, 1,1)
         
         # DRAW DEBUG DATA
         if self.debug: pygame.draw.circle(surf, (000,222,000), self.playercenter, 4) # RENDER DEBUG IMAGES
         if self.debug: pygame.draw.circle(surf, (222,000,000), self.poslast, 4) # RENDER DEBUG IMAGES
         if self.debug: pygame.draw.circle(surf, (000,000,222), self.target, 4) # RENDER DEBUG IMAGES
         if self.debug: pygame.draw.circle(surf, (000,255,000), self.pos, 4) # RENDER DEBUG IMAGES
-        
         self.particles.draw(surf)
         
         #def draw(self, surf, mytext, xy, mycolour, alpha, size, align = ""):

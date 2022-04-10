@@ -1,7 +1,8 @@
 import pygame, random, math
 from pygame.locals import *
 from classsounds import csounds
-from classpathfinder import cpathfinder
+from classparticlecontroller import cparticlecontroller 
+#from classpathfinder import cpathfinder
 #from classgrid import cgrid
 
 class ctarget(object):  # particle group class
@@ -24,10 +25,7 @@ class ctarget(object):  # particle group class
         self.getimage() # returns and loads target image
         self.rotation = 0 #random.randint(0,360) # target rotation
         self.playereffect = random.randint(25,50)
-        #self.sfx = csounds()
-        #self.opf = cpathfinder()
-        #self.surf = surf
-#        self.grid = cgrid()
+        self.particles = cparticlecontroller()
 
     def getimage(self):
         if self.image == "":
@@ -35,7 +33,7 @@ class ctarget(object):  # particle group class
                 self.image = pygame.image.load(self.imagepath)
         return self.image
         
-    def draw(self, surf, offset):
+    def draw(self, surf):
         if not self.image == "": # check the sprite exists 
             self.timer -= 1 # decrease target reset timer 
             if self.timer <= 0: # if timer expires
@@ -47,7 +45,7 @@ class ctarget(object):  # particle group class
                 angle = (180 / math.pi) * -math.atan2(rel_y, rel_x)
                 self.rotation = angle
             
-            surf.blit(pygame.transform.rotate(self.image, self.rotation), (self.pos[0], self.pos[1]) + offset)
+            surf.blit(pygame.transform.rotate(self.image, self.rotation), (self.pos[0], self.pos[1]))
             healthbar = int(float(float(self.image.get_width() / self.totalhealth) * self.health))
             G = 255 / self.totalhealth * self.health
             R = 255 - (255 / self.totalhealth * self.health)
@@ -58,8 +56,8 @@ class ctarget(object):  # particle group class
             C = (int(R),int(G),0)
             if self.damageable:
                 if self.drawhealth == 1:
-                    #print(self.pos)
                     pygame.draw.line(surf,C,(self.pos[0], self.pos[1] + self.image.get_height()),(self.pos[0] + healthbar, self.pos[1] + self.image.get_height()))
+        self.particles.draw(surf)
             
     # def collide(self, level, player, surf):
         # bremove = 0

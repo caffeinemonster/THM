@@ -7,13 +7,13 @@ class cprojectiles(object):
     def __init__(self):
         self.sfx = csounds()
         self.projectiles = []
-        self.magsize = 120
-        self.magcurrent = 120
-        self.ammo = 5000
+        self.magsize = 60
+        self.magcurrent = 60
+        self.ammo = 1000
         self.ammotype = 0
-        self.reloadtime = 100
+        self.reloadtime = 90
         self.reload = self.reloadtime
-        self.damage = 10
+        self.damage = 1
         self.delaytime = 1
         self.delay = self.delaytime
         self.imagepath = 'sprites/bullet1.png'
@@ -46,16 +46,9 @@ class cprojectiles(object):
             obullet.image = self.image
             self.image = pygame.image.load(self.imagepath)
             self.projectiles.append(obullet)
-            
             self.particles.seedemptyshell(x, y)
-            
             self.sfx.fxshoot()
             self.delay = self.delaytime
-            
-    # def slide(self,slide,xy):
-        # for p in self.projectiles:
-            # p.pos[xy] += slide
-            # p.target[xy] += slide 
         
     def draw(self, surf, pcollection = ""):
        
@@ -105,9 +98,11 @@ class cprojectiles(object):
                 if bulletcenter[0] >= t.pos[0] and bulletcenter[0] <= t.pos[0] + t.image.get_width():
                     if bulletcenter[1] >= t.pos[1] and bulletcenter[1] <= t.pos[1] + t.image.get_height():
                         if t.damageable:
+                            self.particles.seedblood(bulletcenter)
                             t.health = t.health - self.damage
                             t.active = 1
                             t.speed = 2
+                            
                         bremove = 1
                         self.sfx.fxhitwood()
                         

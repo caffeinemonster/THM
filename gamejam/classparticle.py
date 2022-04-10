@@ -25,7 +25,6 @@ class cparticle(object):  # particle class
         self.gravity = [0, 1]
         self.imagepath = ""
         self.image = ""
-        #self.gravitymax = [10,10]
 
     def seedrandom(self, xy): # seed random particle
         self.x = xy[0]  # set xloc
@@ -72,7 +71,6 @@ class cparticle(object):  # particle class
             self.life = self.lifeoriginal
             self.alive = 1
             self.totallife = self.lifeoriginal
-            #print("respawning")
         else:
             self.life = 0
             self.alive = 0
@@ -96,7 +94,6 @@ class cparticle(object):  # particle class
         self.sizex = self.image.get_width()
         self.sizey = self.image.get_height()
     
-        
     def move(self):  # move the particle
         if self.life > 0:
             GRAVX = 0

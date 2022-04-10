@@ -2,6 +2,7 @@ import pygame, random, math
 from pygame.locals import *
 from classsounds import csounds
 from classtarget import ctarget
+from classgrid import cgrid
 
 class ctargets(object):  # target group class
     def __init__(self):
@@ -9,7 +10,7 @@ class ctargets(object):  # target group class
     
     def draw(self, surf):
         for t in self.targets:
-            t.draw(surf, (0,0))
+            t.draw(surf)
     
     def update(self):
         for targ in self.targets:
@@ -36,14 +37,15 @@ class ctargets(object):  # target group class
             # if not targ.active:
                 # targ.speed = 0
                 # targ.target = targ.pos
+                
         self.killtargets() # removes targets that have 0 life
         
     
     def collide(self, level, player):
         bremove = 0
         for t in self.targets:
-            if player.playercenter[0] >= t.pos[0] and player.playercenter[0] <= t.pos[0] + t.image.get_width():
-                if player.playercenter[1] >= t.pos[1] and player.playercenter[1] <= t.pos[1] + t.image.get_height():
+            if player.playercenter[0] >= t.pos[0] - t.image.get_width()/2 and player.playercenter[0] <= t.pos[0] + t.image.get_width()/2:
+                if player.playercenter[1] >= t.pos[1] - t.image.get_height()/2 and player.playercenter[1] <= t.pos[1] + t.image.get_height()/2:
                     
                     if t.damageable:                            
                         bremove = 1
@@ -84,11 +86,22 @@ class ctargets(object):  # target group class
                             t.target = t.pos
             
             if bremove: # needs fixing to respawn on square that isnt a wall 
-                self.targets.remove(t)
-                spawnx = random.randint(0, level.levelsize[0])
-                spawny = random.randint(0, level.levelsize[1])
-                otarget = ctarget((spawnx,spawny), 'sprites/crate'  + str(random.randint(1,6)) + '.png', random.randint(5,10), random.randint(0,1), random.randint(1,4))
+                s = pygame.Surface((level.levelsize[0], level.levelsize[1]))
+                og = cgrid(level.gridsize[0],level.gridsize[1], s)
+                og.data = level.leveldata
+                c = og.getrandomcell()
+                cloc = og.getxylocation(c)
+                
+                if t.targettype == 4:
+                    otarget = ctarget(cloc, 'sprites/enemy'  + str(random.randint(4,4)) + '.png', random.randint(10,50), 1, 4)
+                else:
+                    otarget = ctarget(cloc, 'sprites/crate'  + str(random.randint(1,6)) + '.png', random.randint(5,10), random.randint(0,1), random.randint(1,4))
+                
+                otarget.pos[0] = otarget.pos[0] - otarget.image.get_width()/2
+                otarget.pos[1] = otarget.pos[1] - otarget.image.get_height()/2
+                
                 self.targets.append(otarget)
+                self.targets.remove(t)
                 bremove = 0
                 
     def killtargets(self):

@@ -80,11 +80,6 @@ class cglobal(object):
         self.player.update((0,0))
         self.level.update()
         self.level.collide(self.player)
-        
-                   
-                
-        
-        
         #pass # code added here to update game elements before drawing 
         
     def draw(self):
@@ -94,49 +89,32 @@ class cglobal(object):
         self.background.draw(self.DISPLAYSURF) # DRAW BACKGROUND
         self.level.draw(self.DISPLAYSURF)
         self.player.draw(self.DISPLAYSURF)
-        
-        
+        self.level.targets.draw(self.DISPLAYSURF)
         
         for t in self.level.targets.targets:
             if not t.active: 
-                gridxystart = self.pfinder.grid.getxy(self.player.pos)
+                gridxystart = self.pfinder.grid.getxy(self.player.playercenter)
                 gridxyend =  self.pfinder.grid.getxy(t.pos)
-                if self.pfinder.grid.calculatedistance(gridxystart, gridxyend) < 5: t.active = 1
+                if self.pfinder.grid.calculatedistance(gridxystart, gridxyend) < 5: 
+                    t.active = 1
+                    t.speed = 2
                 continue
             if t.targettype == 4:             
-                #self.level.pathfind(self.pfinder, self.player, self.DISPLAYSURF)
-                
-                self.pfinder.pos_start = self.pfinder.grid.getxy(self.player.pos)
+                gridxystart = self.pfinder.grid.getxy(self.player.playercenter)
+                gridxyend =  self.pfinder.grid.getxy(t.pos)
+                if self.pfinder.grid.calculatedistance(gridxystart, gridxyend) < 2: 
+                    t.target = self.player.playercenter - (t.image.get_width()/2, t.image.get_height()/2)
+                    continue
+                self.pfinder.pos_start = self.pfinder.grid.getxy(self.player.playercenter)
                 self.pfinder.pos_end =  self.pfinder.grid.getxy(t.pos)
-                
-                
-                
-                o = self.pfinder.calcpath()
+                o = self.pfinder.calcpath() #(self.DISPLAYSURF)
                 if o is None: continue 
-                #if o.xy == self.pfinder.pos_start:
-                #    t.target = self.player.pos 
-                #    break
                 if o == "": continue 
                 if o.previousnode is None: continue 
                 if o.previousnode == "": continue 
                 t.target = self.pfinder.grid.getxylocation(o.previousnode.xy) + (self.level.tilesize[0]/2, self.level.tilesize[1]/2)
                 t.speed = 2
                 o=""
-                
-                #tempcell = o
-                #while not tempcell == None:
-                   #if tempcell == "": break
-                   #if tempcell is None: break
-                   #if tempcell.previousnode is None: break
-                   #if tempcell.previousnode == "": break
-                   #if self.debug:self.pfinder.grid.drawcell(self.DISPLAYSURF, tempcell.xy[0], tempcell.xy[1], (128,255,0), 5, 4)
-                   #tempcell = tempcell.previousnode
-                #o = ""
-        
-        
-        
-        
-        
         
         
         # LEAVE CODE BELOW FOR REFERENCE
@@ -181,10 +159,11 @@ class cglobal(object):
         # SET START POS BASED ON MOUSE POS
         #self.pfinder.grid.drawtext(self.DISPLAYSURF, gridxy[0], gridxy[1], str(gridxy), 8)
         #self.grid.drawcell(surf, self.pos_start[0], self.pos_start[1], (0,255,0),0,0)
-        #self.pfinder.create(self.DISPLAYSURF, (self.GRIDX, self.GRIDY))
+        #self.pfinder.create(self.DISPLAYSURF,  (self.GRIDX, self.GRIDY))
 
         # UPDATE DISPLAY
         if self.debug == 1: print("Updating global display buffer.")
         pygame.display.flip() # UPDATE DISPLAY BUFFER
         pygame.display.update() # UPDATE DISPLAY BUFFER
         self.GCLOCK.tick(self.FRAMERATE) # SET FRAMERATE
+        pygame.event.pump()

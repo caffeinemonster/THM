@@ -31,7 +31,7 @@ class cpathfinder(object):
         self.open = [] # list to store array of open search locations 
         self.closed  = [] # list of closed search locations 
         self.open.append(node(self.pos_start)) # append start pos to open list sets 1st node to search
-        self.visualise = 0
+        self.visualise = 1
         self.randomise()
 
     def checkkeys(self):
@@ -60,6 +60,7 @@ class cpathfinder(object):
         return cellreturn # if not return original cell
         
     def calcpath(self, surf = ""): #, surf): # calculates A* optimal path / route
+        if surf == "": self.visualise = 0
         if self.pos_start == None: return
         if self.pos_end == None: return
         
@@ -122,8 +123,8 @@ class cpathfinder(object):
                     if not surf == "": 
                        if not onode == "":
                            if self.visualise:self.grid.drawcell(surf, onode.xy[0], onode.xy[1], (0,0,255), 3, 3)
-                       if self.visualise:pygame.display.flip()
-                       if self.visualise:pygame.display.update()
+                       #if self.visualise:pygame.display.flip()
+                       #if self.visualise:pygame.display.update()
                     self.open.append(onode) # add node to serach list 
                 self.step += 1 # increase step count by one
                 if o.xy == self.pos_end: # if path found (end goal reached)
@@ -140,14 +141,15 @@ class cpathfinder(object):
     
     def draw(self, surf, o):
         if not self.visualise: return
+        if surf == "": return
         tempcell = o
         while not tempcell == None:
             if tempcell == "": break
             self.grid.drawcell(surf, tempcell.xy[0], tempcell.xy[1], (128,255,0), 5, 4)
             self.grid.drawtext(surf, tempcell.xy[0], tempcell.xy[1], str(int(tempcell.f)), 8)
             tempcell = tempcell.previousnode
-        pygame.display.flip()
-        pygame.display.update()
+        #pygame.display.flip()
+        #pygame.display.update()
         
         
             
