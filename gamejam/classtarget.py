@@ -20,7 +20,7 @@ class ctarget(object):  # particle group class
         self.speedmax = self.speed
         self.target = pygame.Vector2(self.pos) # targets target movement position
         self.targettype = targettype #int(random.randint(0,4)) # target type  
-        self.timer = random.randint(1,10)
+        self.timer = random.randint(100,400)
         self.timertotal = self.timer
         self.getimage() # returns and loads target image
         self.rotation = 0 #random.randint(0,360) # target rotation
@@ -31,6 +31,7 @@ class ctarget(object):  # particle group class
         if self.image == "":
             if not self.imagepath == "":
                 self.image = pygame.image.load(self.imagepath)
+                #print(self.imagepath)
         return self.image
         
     def draw(self, surf):
@@ -40,11 +41,17 @@ class ctarget(object):  # particle group class
                 self.timer = 0 # ensure timer is set to 0
                 
             if self.targettype == 4: # ENEMY TURN TO TARGET DIRECTION
-                player_x, player_y = pygame.Vector2(self.target)
-                rel_x, rel_y = pygame.Vector2(self.pos) - pygame.Vector2(self.target)
-                angle = (180 / math.pi) * -math.atan2(rel_y, rel_x)
-                self.rotation = angle
-            
+                if self.pos == self.target:
+                    if self.timer == 0:
+                        self.rotation = random.randint(0,360)
+                else:                
+                    player_x, player_y = pygame.Vector2(self.target)
+                    rel_x, rel_y = pygame.Vector2(self.pos) - pygame.Vector2(self.target)
+                    angle = (180 / math.pi) * -math.atan2(rel_y, rel_x)
+                    self.rotation = angle
+                
+                
+                
             surf.blit(pygame.transform.rotate(self.image, self.rotation), (self.pos[0], self.pos[1]))
             healthbar = int(float(float(self.image.get_width() / self.totalhealth) * self.health))
             G = 255 / self.totalhealth * self.health

@@ -101,10 +101,15 @@ class cglobal(object):
                 continue
             if t.targettype == 4:             
                 gridxystart = self.pfinder.grid.getxy(self.player.playercenter)
-                gridxyend =  self.pfinder.grid.getxy(t.pos)
-                if self.pfinder.grid.calculatedistance(gridxystart, gridxyend) < 2: 
+                gridxyend =  self.pfinder.grid.getxy((t.pos) + (t.image.get_width()/2, t.image.get_height()/2))
+                idistance = self.pfinder.grid.calculatedistance(gridxystart, gridxyend)
+                if idistance < 2:
                     t.target = self.player.playercenter - (t.image.get_width()/2, t.image.get_height()/2)
                     continue
+                elif idistance > 10:
+                    t.active = 0
+                    continue
+                    
                 self.pfinder.pos_start = self.pfinder.grid.getxy(self.player.playercenter)
                 self.pfinder.pos_end =  self.pfinder.grid.getxy(t.pos)
                 o = self.pfinder.calcpath() #(self.DISPLAYSURF)
@@ -112,9 +117,30 @@ class cglobal(object):
                 if o == "": continue 
                 if o.previousnode is None: continue 
                 if o.previousnode == "": continue 
-                t.target = self.pfinder.grid.getxylocation(o.previousnode.xy) + (self.level.tilesize[0]/2, self.level.tilesize[1]/2)
+                t.target = self.pfinder.grid.getxylocation(o.previousnode.xy) + (self.level.tilesize[0]/2, self.level.tilesize[1]/2) - (t.image.get_width()/2, t.image.get_height()/2)
                 t.speed = 2
                 o=""
+        
+        
+        
+        
+        self.text.draw( (0,0), (255,255,255), "Lives:(" + str(self.player.lives) + ")" + 
+        "Health:(" + str(self.player.health) + ")" + 
+        "Ammo:(" + str(self.player.projectiles.ammo) + ")" + 
+        "Magazine:(" + str(self.player.projectiles.magcurrent) + ")" +
+        "Score:(" + str(self.player.score.score) + ")" 
+        , "centerbottom")
+    
+        if self.player.lives <= 0:
+            self.text.draw((0,0), (255,255,255), "GAME OVER", "center")
+        
+        # check player is still alive 
+        #if self.player.lives <= 0:
+        #    if self.player.health <=0: 
+        #        #game over
+        #        self.text.draw((0,0), (128,128,128), "GAME OVER", "CENTER")
+                
+        
         
         
         # LEAVE CODE BELOW FOR REFERENCE
@@ -160,6 +186,7 @@ class cglobal(object):
         #self.pfinder.grid.drawtext(self.DISPLAYSURF, gridxy[0], gridxy[1], str(gridxy), 8)
         #self.grid.drawcell(surf, self.pos_start[0], self.pos_start[1], (0,255,0),0,0)
         #self.pfinder.create(self.DISPLAYSURF,  (self.GRIDX, self.GRIDY))
+        
 
         # UPDATE DISPLAY
         if self.debug == 1: print("Updating global display buffer.")

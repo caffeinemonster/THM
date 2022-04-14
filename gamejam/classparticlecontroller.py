@@ -131,7 +131,7 @@ class cparticlecontroller(object):  # particle group class
         for p in self.collection:
             p.detectbounds = 0
     
-    def seedblood(self, xy):
+    def seedblood(self, xy, colour = ""):
         #for icount in range(1, 4):
         parts = cparticles()
         parts.detectbounds = 1
@@ -139,21 +139,51 @@ class cparticlecontroller(object):  # particle group class
         #def seed(self, x, y, speed, life, amount, rgbcolour, size):
         ispeed = 10
         ilife = random.randint(30, 200)
-        iamount = 2
-        ocolour = (random.randint(128,255),0,0)
-        isize = random.randint(4, 10)
+        iamount = 1
+        if colour == "": # red
+            ocolour = (random.randint(128,255),0,0)
+        elif colour == "RED":
+            ocolour = (random.randint(128,255),0,0)
+        elif colour == "GREEN":
+            ocolour = (0,random.randint(128,255),0)
+        elif colour == "BLUE":
+            ocolour = (0,0,random.randint(128,255))
+        else: # red
+            ocolour = (random.randint(128,255),0,0)
+        isize = random.randint(5, 10)
         parts.seed(xy[0], xy[1], ispeed, ilife, iamount, ocolour, isize)
-        #def seed(self,x,y,radius,colour,rotation,targpos):
-        #def seed(self,x,y,radius,colour,rotation,targpos):
-        
         for p in parts.particles:
-            p.colour = (random.randint(128,255),0,0)
             p.speedx = 0
             p.speedy = 0
-            #p.gravity = [int([-1,0,1][random.randrange(3)]),int([-1,0,1][random.randrange(3)])]
             p.gravity = [0,0]
         self.collection.insert(0, parts)            
-        
+    def seedslime(self, xy, colour = ""):
+        #for icount in range(1, 4):
+        parts = cparticles()
+        parts.detectbounds = 1
+        parts.draworder = 1
+        #def seed(self, x, y, speed, life, amount, rgbcolour, size):
+        ispeed = 1
+        ilife = random.randint(30, 200)
+        iamount = 1
+        if colour == "": # red
+            ocolour = (random.randint(128,255),0,0)
+        elif colour == "RED":
+            ocolour = (random.randint(128,255),0,0)
+        elif colour == "GREEN":
+            ocolour = (0,random.randint(128,255),0)
+        elif colour == "BLUE":
+            ocolour = (0,0,random.randint(128,255))
+        else: # red
+            ocolour = (random.randint(128,255),0,0)
+        isize = random.randint(10, 20)
+        parts.seed(xy[0], xy[1], ispeed, ilife, iamount, ocolour, isize)
+        for p in parts.particles:
+            #p.speedx = 0
+            #p.speedy = 0
+            p.gravity = [0,0]
+        self.collection.insert(0, parts)
+
     def seedcloudmagic(self, xy):
         for icount in range(1, 4):
             parts = cparticles()
@@ -182,21 +212,16 @@ class cparticlecontroller(object):  # particle group class
             self.collection.insert(0, parts)
     
     def killold(self):
-        #self.collection.insert(0, parts)
         for p in self.collection:
-            #print(len(p.particles))
-            #print("Particle in collection:" + str(len(p.particles)))
             if len(p.particles) == 0:
                 self.collection.pop(self.collection.index(p))
-                p = ""
-                del(p)
+                #p = ""
+                #del(p)
                 
     def draw(self, surf):
         self.killold()
-        for x in range(0,9):
-            for p in self.collection:
-                if len(p.particles) == 0:
-                    self.collection.remove(p)
-                    break
-                if p.draworder == x:
-                    p.draw(surf)
+        for p in self.collection:
+            if len(p.particles) == 0:
+                self.collection.remove(p)
+                break
+            p.draw(surf)

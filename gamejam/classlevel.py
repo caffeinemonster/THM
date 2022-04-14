@@ -41,7 +41,7 @@ class clevel(object):
                           "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
                           "0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
                           "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
-                          "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
+                          "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,4,4,0,0,0,0,0",
                           "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
                           "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0",
                           "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
@@ -65,7 +65,6 @@ class clevel(object):
                           "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
                           "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
                           "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"]]
-                          
         self.rotation = [["0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
                           "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
                           "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
@@ -84,11 +83,10 @@ class clevel(object):
                           "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
                           "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
                           "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"]]
-        
-        #self.targets = []
                                                    
         self.imagepath = "tiles/tile0.png"
         self.image = pygame.image.load(self.imagepath) 
+        
         self.gridsize = (self.leveldata[0].count(',')+1, len(self.leveldata))
         self.tilesize = (surf.get_width() / self.gridsize[0], surf.get_height() / self.gridsize[1])
         
@@ -144,59 +142,24 @@ class clevel(object):
     def spawntargets(self):
         for x in range (0, int(self.gridsize[0])):
             for y in range (0,  int(self.gridsize[1])):                    
-                tileid = self.leveldata[y].split(',')[x]
-                imagestring = "tiles/tile0.png"
-                itartgettype  = int(self.spawns[y].split(',')[x])
-                idamgaeable = random.randint(0,1)
-                ihealth = random.randint(30,75)
-                simage = ""
+                imagestring = "tiles/tile0.png" # default image 
+                itartgettype  = int(self.spawns[y].split(',')[x]) # indicates target type (pickup/enemy)
+                idamgaeable = random.randint(0,1) # can target take damage 
+                ihealth = random.randint(30,75) # health of target
+                simagepath = "" # image variable 
                 if not itartgettype == 4:
-                    simage = 'sprites/crate' + str(random.randint(1,9)) + '.png'
-                else:
-                    simage = 'sprites/enemy' + str(random.randint(1,4)) + '.png'
-                    simage = 'sprites/enemy' + str(random.randint(4,4)) + '.png'
-                    
+                    simagepath = 'sprites/crate' + str(random.randint(6,10)) + '.png'
+                elif itartgettype == 4:
+                    simagepath = 'sprites/enemy' + str(random.randint(1,1)) + '.png'
                     idamgaeable = 1
                 if itartgettype > 0:
-                    #tempsurf = pygame.Surface((self.levelsize[0], self.levelsize[0]), pygame.SRCALPHA)
-                    otarget = ctarget((x * self.tilesize[0] + (self.tilesize[0]/2), y * self.tilesize[1]+ (self.tilesize[1]/2)), simage, ihealth, idamgaeable, itartgettype)
-                    otarget.pos = pygame.Vector2(otarget.pos[0] - (otarget.image.get_width() / 2), otarget.pos[1] - (otarget.image.get_height() / 2))
-                    otarget.target = otarget.pos
-                    otarget.active = 0
-                if itartgettype > 0:
-                    self.targets.targets.append(otarget)
-    
-    # def pathfind(self, pfinder, player, surf):
-        # for t in self.targets.targets:
-            # if t.active:
-                # if t.targettype == 4:
-                    # # if not t.pos == t.target: continue
-                    # pfinder.pos_start = pfinder.grid.getxy(player.pos)
-                    # pfinder.end_pos =  pfinder.grid.getxy(t.pos)
-                    # print("target xy grid location : " + str(pfinder.grid.getxy(t.pos)))
-                    # print("target xy pos (screen) location : " + str(t.pos))
-                    
-                    # # print(t.pos)
-                    # o = pfinder.calcpath()
-                    
-                    # if o is None: continue 
-                    # if o == "": continue 
-                    # if o.previousnode is None: continue 
-                    # if o.previousnode == "": continue 
-                    # t.target = pfinder.grid.getxylocation(o.xy)
-                    # t.target = pfinder.grid.getxylocation(o.previousnode.xy)
-                    # tempcell = o
-                    # while not tempcell == None:
-                       # if tempcell == "": break
-                       # if tempcell is None: break
-                       # if tempcell.previousnode is None: break
-                       # if tempcell.previousnode == "": break
-                       # if self.debug:pfinder.grid.drawcell(surf, tempcell.xy[0], tempcell.xy[1], (128,255,0), 5, 4)
-                       # tempcell = tempcell.previousnode
-                       
-        # pygame.display.flip()
-        # pygame.display.update()
-                    
+                    t = ctarget((x * self.tilesize[0] + (self.tilesize[0]/2), y * self.tilesize[1]+ (self.tilesize[1]/2)), simagepath, ihealth, idamgaeable, itartgettype)
+                    t.pos = pygame.Vector2(t.pos[0] - (t.image.get_width() / 2), t.pos[1] - (t.image.get_height() / 2))
+                    t.imagepath = simagepath
+                    t.target = t.pos
+                    t.timer = random.randint(0, 100)
+                    t.active = 0
+                    self.targets.targets.append(t)
     
     def update(self):
         self.targets.update()
@@ -204,13 +167,12 @@ class clevel(object):
     def collide(self, player):
         # TARGET COLLISION CODE:
         self.targets.collide(self, player)
-        player.projectiles.collide(self.targets)
-        
+        player.projectiles.collide(self.targets, player)
         # LEVEL PLAYER COLLISION CODE - STOPS PLAYER TRAVELLING THROUGH WALLS 
         for x in range (0, int(self.gridsize[0])):
             for y in range (0,  int(self.gridsize[1])):                    
-                if player.playercenter[0] >= x*self.tilesize[0]+self.offset[0] and player.playercenter[0] <= x*self.tilesize[0]+self.offset[0] + self.tilesize[0]:
-                    if player.playercenter[1] >= y*self.tilesize[1]+self.offset[1] and player.playercenter[1] <= y*self.tilesize[1]+self.offset[1] + self.tilesize[1]:
+                if player.playercenter[0] >= x*self.tilesize[0] and player.playercenter[0] <= x*self.tilesize[0] + self.tilesize[0]:
+                    if player.playercenter[1] >= y*self.tilesize[1] and player.playercenter[1] <= y*self.tilesize[1] + self.tilesize[1]:
                         # PLAYER IS ON MAP
                         tileid = self.leveldata[y].split(',')[x]
                         if int(tileid) > 0: # COLLISION STOP PLAYER    

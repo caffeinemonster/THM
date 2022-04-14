@@ -2,7 +2,7 @@ import pygame
 from pygame.locals import *
 class ctext(object):  # particle group class
     def __init__(self, surf):
-        self.size = 18
+        self.size = 32
         self.font = pygame.font.Font("fonts/Futura.ttf", self.size)
         self.surf = surf
         self.alpha = 255

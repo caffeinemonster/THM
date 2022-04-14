@@ -8,7 +8,7 @@ class cprojectile(object):
         self.facing = facing
         self.rotation = rotation
         self.vel = 8 * facing
-        self.speed = 8
+        self.speed = 10
         self.pos = pygame.Vector2(x,y)
         self.target = pygame.Vector2(x,y)
         self.imagepath = "sprites/bullet2.png"

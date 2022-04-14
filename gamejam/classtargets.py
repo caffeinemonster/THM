@@ -1,44 +1,65 @@
-import pygame, random, math
+import pygame, random, math, os
+#from os.path import exists
 from pygame.locals import *
 from classsounds import csounds
 from classtarget import ctarget
 from classgrid import cgrid
+from classparticlecontroller import cparticlecontroller
 
 class ctargets(object):  # target group class
     def __init__(self):
         self.targets = []
+        self.particles = cparticlecontroller()
     
     def draw(self, surf):
+        self.particles.draw(surf)
         for t in self.targets:
             t.draw(surf)
     
     def update(self):
-        for targ in self.targets:
-            move = targ.target - targ.pos
+        for t in self.targets:
+            move = t.target - t.pos
             move_length = move.length()
-            if move_length < targ.speed:
-                targ.target = targ.pos
-                targ.speed = 0
+            if move_length < t.speed:
+                t.target = t.pos
+                t.speed = 0
             elif move_length != 0:
                 move.normalize_ip()
-                move = move * targ.speed
-                targ.pos += move
-            
-            #if targ.targettype == 4:
-                # if targ.timer <= 0: # retargeting timer
-                    # targ.timer = targ.timertotal
-                    # if random.randint(0,100) >= 50:
-                        # targ.active = 1
-                        # targ.followplayer = 1
-                        # targ.speed = random.randint(1,4)
-                    # else:
-                        # targ.speed = random.randint(1,2)
-                # else: targ.timer -= 1
-            # if not targ.active:
-                # targ.speed = 0
-                # targ.target = targ.pos
+                move = move * t.speed
+                t.pos += move
                 
-        self.killtargets() # removes targets that have 0 life
+            
+                
+            if t.targettype == 4:
+                if t.target == t.pos:
+                    
+                    if t.timer == 0:
+                        inumber = random.randint(0,1)
+                        
+                        if inumber == 0:
+                            t.image = pygame.image.load(t.imagepath)
+                        else:
+                            simage = t.imagepath.replace("png", "") + "idle1.png"
+                            t.image = pygame.image.load(simage)
+                else:
+                    inumber = random.randint(0,1)
+                    if inumber == 0:
+                        t.image = pygame.image.load(t.imagepath)
+                    else:
+                        simage = t.imagepath.replace("png", "") + "walk1.png"
+                        if os.path.exists(simage):
+                            t.image = pygame.image.load(simage)
+                            
+                    #if t.timer == 0:
+                        
+                if t.timer <= 0: # reteting timer
+                    t.timer = random.randint(0, t.timertotal)
+                else: t.timer -= 1
+            if not t.active:
+                t.speed = 0
+                t.target = t.pos
+                
+        self.killtargets() # removes tets that have 0 life
         
     
     def collide(self, level, player):
@@ -73,6 +94,7 @@ class ctargets(object):  # target group class
                         player.lives += t.playereffect
                     
                     if int(t.targettype) == 4: #enemy
+                        
                         bremove = 1
                         player.health -= t.playereffect
                         if t.timer <= 0: # retargeting timer
@@ -91,6 +113,11 @@ class ctargets(object):  # target group class
                 og.data = level.leveldata
                 c = og.getrandomcell()
                 cloc = og.getxylocation(c)
+                
+                cloc[0] = (cloc[0] + (level.tilesize[0] / 2))
+                cloc[1] = (cloc[1] + (level.tilesize[1] / 2))
+                
+                if t.targettype == 4: self.particles.seedslime(t.pos + (random.randint(0,10)-5, random.randint(0,10)-5), "GREEN")
                 
                 if t.targettype == 4:
                     otarget = ctarget(cloc, 'sprites/enemy'  + str(random.randint(4,4)) + '.png', random.randint(10,50), 1, 4)

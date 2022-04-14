@@ -9,12 +9,12 @@ class cprojectiles(object):
         self.projectiles = []
         self.magsize = 60
         self.magcurrent = 60
-        self.ammo = 1000
+        self.ammo = 5000
         self.ammotype = 0
-        self.reloadtime = 90
+        self.reloadtime = 60
         self.reload = self.reloadtime
-        self.damage = 1
-        self.delaytime = 1
+        self.damage = 5
+        self.delaytime = 5
         self.delay = self.delaytime
         self.imagepath = 'sprites/bullet1.png'
         self.image = pygame.image.load(self.imagepath)
@@ -24,18 +24,14 @@ class cprojectiles(object):
     def seed(self,x,y,radius,colour,rotation,targpos):
         if self.reload <= 0:
             self.reload = 0
-            
         if self.magcurrent == 0:
             return
-            
         if self.ammo <= 0:
             self.ammo = 0
             return
-
         if not self.delay == 0:
             self.delay = self.delay - 1
             return
-        
         if len(self.projectiles) < 300:
             self.ammo = self.ammo - 1
             self.magcurrent = self.magcurrent - 1
@@ -51,16 +47,12 @@ class cprojectiles(object):
             self.delay = self.delaytime
         
     def draw(self, surf, pcollection = ""):
-       
         if not self.delay == 0:
             self.delay = self.delay - 1
-        
         if self.magcurrent == 0:
             self.reload = self.reload - 1
-        
         if self.reload <= 0:
             self.reload = 0
-        
         if self.reload <= 0:
             if self.ammo > 0:
                 if self.magcurrent == 0:
@@ -86,29 +78,25 @@ class cprojectiles(object):
                 del(bullet)
         self.particles.draw(surf)
             
-    def collide(self, targets):
+    def collide(self, targets, player):
         for bullet in self.projectiles:
             bremove = 0
             bulletcenter = (bullet.pos[0] + (bullet.image.get_width() / 2), bullet.pos[1] + (bullet.image.get_height() / 2))
-            
             if bullet.life <= 0:
                 bremove = 1
-
-            for t in targets.targets:
-                if bulletcenter[0] >= t.pos[0] and bulletcenter[0] <= t.pos[0] + t.image.get_width():
-                    if bulletcenter[1] >= t.pos[1] and bulletcenter[1] <= t.pos[1] + t.image.get_height():
-                        if t.damageable:
-                            self.particles.seedblood(bulletcenter)
-                            t.health = t.health - self.damage
-                            t.active = 1
-                            t.speed = 2
-                            
-                        bremove = 1
-                        self.sfx.fxhitwood()
-                        
             if bullet.target == bullet.pos:
                 bremove = 1
+            if not bremove:
+                for t in targets.targets:
+                    if bulletcenter[0] >= t.pos[0] and bulletcenter[0] <= t.pos[0] + t.image.get_width():
+                        if bulletcenter[1] >= t.pos[1] and bulletcenter[1] <= t.pos[1] + t.image.get_height():
+                            if t.damageable:
+                                self.particles.seedblood(bulletcenter, "GREEN")
+                                t.health = t.health - self.damage
+                                t.active = 1
+                                t.speed = 2
+                                player.score.add(self.damage)
+                            bremove = 1
+                            self.sfx.fxhitwood()
             if bremove:
-                self.projectiles.pop(self.projectiles.index(bullet))
-                bullet = ""
-                del(bullet)
+                self.projectiles.remove(bullet)

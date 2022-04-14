@@ -1,6 +1,8 @@
 import pygame, math, sys
 from classprojectiles import cprojectiles
 from classparticlecontroller import cparticlecontroller
+from classscore import cscore
+
 #from classtext import ctext
 
 
@@ -27,6 +29,7 @@ class cplayer(object):  # particle group class
         self.updatecenter()
         self.projectiles = cprojectiles()
         self.particles = cparticlecontroller()
+        self.score = cscore()
 
     def setup(self, surf, offset):
         self.pos[0] = (surf.get_width() / 2) + offset[0]
@@ -71,7 +74,7 @@ class cplayer(object):  # particle group class
     def checkkeys(self):
         #for event in pygame.event.get():
         bshoot = 0 # ADD PROJECTILE?
-        # CHECK EVENT AND BUTTON QUEUE 
+        # CHECK EVENT AND BUTTON QUEUE
         # CHECK MOUSE EVENTS
         for event in pygame.event.get():
             if event.type == MOUSEBUTTONDOWN:
@@ -127,8 +130,8 @@ class cplayer(object):  # particle group class
         if G < 0:G = 0
         if G > 255:G = 255
 
-        # DRAW HEALTH BAR 
-        pygame.draw.line(surf,(int(R),int(G),0),(self.pos[0]-self.image.get_width(), self.pos[1] + self.image.get_height()/2),(self.pos[0] + healthbar - (self.image.get_width()), self.pos[1] + self.image.get_height()/2))
+        # DRAW HEALTH BAR
+        pygame.draw.line(surf,(int(R),int(G),0),(self.pos[0], self.pos[1] + self.image.get_height()), (self.pos[0] + healthbar, self.pos[1] + self.image.get_height()))
         
         # DRAW PLAYER IMAGE 
         surf.blit(pygame.transform.rotate(self.image, self.rotation), (self.pos[0], self.pos[1]))
